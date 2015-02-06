@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:background="@color/white"
+    android:padding="0.0px"
+>
+
+    <ImageView
+        android:id="@+id/create_tiezi_controlbar_left_button"
+        android:background="@drawable/ic_action_expand"
+        android:layout_alignParentLeft="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        />
+
+    <TextView
+        android:id="@+id/create_tiezi_emotions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_toLeftOf="@+id/create_tiezi_controlbar_right_button"
+        android:clickable="true"
+        android:text="@string/emotion" />
+    
+    <ImageView
+        android:id="@+id/create_tiezi_controlbar_right_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_action_overflow"
+        android:clickable="true"
+         />
+
+</RelativeLayout>

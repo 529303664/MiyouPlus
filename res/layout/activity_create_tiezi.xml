@@ -1,0 +1,86 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+     >
+
+    <!--
+android:paddingTop="?attr/actionBarSize" 
+让处于actionbar启用叠加模式的情况下，保持下面的布局始终位于actionbar下部
+    -->
+
+    <FrameLayout
+        android:id="@+id/create_tiezi_framelayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+         >
+
+        <ImageView 
+            android:id="@+id/create_tiezi_imageview1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/l_2"
+            android:scaleType="centerCrop"
+            />
+        
+        <com.rockerhieu.emojicon.EmojiconEditText
+            android:id="@+id/create_tiezi_input_editext"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:gravity="center"
+            android:hint="@string/create_tiezi_hint"
+            />
+        
+        <!-- <EditText
+            
+             /> -->
+
+        <ProgressBar
+            android:id="@+id/create_tiezi_progressBar1"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_gravity="center"
+            android:visibility="gone"
+            />
+        
+    </FrameLayout>
+
+    <fragment 
+        android:id="@+id/emojicons"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        class="com.rockerhieu.emojicon.EmojiconsFragment"
+        android:layout_above="@+id/create_tiezi_linearlayout"
+        />
+    
+    <LinearLayout
+        android:id="@+id/create_tiezi_linearlayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:orientation="vertical" >
+
+        <include
+            layout="@layout/craete_tiezi_controlbar"
+            android:focusable="true" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2px"
+            android:layout_marginTop="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <FrameLayout
+            android:id="@+id/create_tiezi_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:visibility="gone"
+            tools:context="miyou.createtiezi.CreateTieziActivity"
+            tools:ignore="MergeRootFrame" />
+    </LinearLayout>
+
+</RelativeLayout>

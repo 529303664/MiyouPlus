@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView 
+        android:id="@+id/create_tiezi_changebar_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:text="@string/brightness"
+        android:textColor="@color/green"
+        />
+    <SeekBar
+        android:id="@+id/create_tiezi_seekBar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:progress="127"
+        android:max="255"
+        />
+
+    <View
+        android:id="@+id/create_tiezi_changebar_spliter1"
+        android:layout_width="fill_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="60dp"
+        android:background="?android:attr/listDivider"
+        android:layout_below="@+id/create_tiezi_seekBar1"
+         />
+    
+    <TextView 
+        android:id="@+id/create_tiezi_changebar_return"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/create_tiezi_changebar_spliter1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_action_undo"
+        android:text="@string/returntext"
+        />
+
+    <TextView 
+        android:id="@+id/create_tiezi_changebar_brightness"
+        android:layout_toLeftOf="@+id/create_tiezi_changebar_mistiness"
+        android:layout_below="@+id/create_tiezi_changebar_spliter1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="40dp"
+        android:text="@string/brightness"
+        android:drawableTop="@drawable/ic_action_brightness_medium"
+        />
+    
+    <CheckBox 
+        android:id="@+id/create_tiezi_changebar_mistiness"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/create_tiezi_changebar_spliter1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mitness"
+        android:drawableTop="@drawable/ic_action_picture"
+        />
+</RelativeLayout>

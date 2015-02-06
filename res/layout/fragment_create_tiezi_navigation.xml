@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" 
+    >
+
+    <TextView
+        android:id="@+id/create_tiezi_takephoto"
+        style="@style/dockbarcreatetiezinavigation"
+        android:layout_alignParentLeft="true"
+        android:drawableTop="@drawable/ic_action_camera"
+        android:gravity="center"
+        android:paddingLeft="10.0dip"
+        android:text="@string/takephoto"
+        android:onClick="true"
+         />
+
+    <TextView
+        android:id="@+id/create_tiezi_gallary"
+        style="@style/dockbarcreatetiezinavigation"
+        android:layout_toRightOf="@id/create_tiezi_takephoto"
+        android:drawableTop="@drawable/ic_action_new_picture"
+        android:gravity="center"
+        android:paddingLeft="20dp"
+        android:text="@string/gallary"
+        android:onClick="true"
+         />
+    
+    <TextView
+        android:id="@+id/create_tiezi_model"
+        style="@style/dockbarcreatetiezinavigation"
+        android:layout_toRightOf="@id/create_tiezi_gallary"
+        android:drawableTop="@drawable/ic_action_collection"
+        android:gravity="center"
+        android:paddingLeft="20dp"
+        android:text="@string/ResourceModel" 
+        android:onClick="true"
+        />
+    <TextView 
+        android:id="@+id/create_tiezi_ps"
+        style="@style/dockbarcreatetiezinavigation"
+        android:layout_toRightOf="@id/create_tiezi_model"
+        android:gravity="center"
+        android:paddingLeft="20dp"
+        android:text="@string/adjust_effect" 
+        android:onClick="true"
+        android:drawableTop="@drawable/ic_action_computer"
+        />
+</RelativeLayout>

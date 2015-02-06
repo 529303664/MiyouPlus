@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" 
+    android:background="@color/white"
+    >
+<!-- android:background="@drawable/radius_bg" -->
+    <include layout="@layout/tiezi_item_title"
+         />
+    <FrameLayout
+        android:id="@+id/tiezi_framelayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+         >
+
+        <ImageView
+            android:id="@+id/tiezi_imageview1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/l_10"
+            android:scaleType="fitCenter" />
+
+        <com.rockerhieu.emojicon.EmojiconTextView
+            android:id="@+id/tiezi_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:gravity="center"
+             />
+    </FrameLayout>
+    <include 
+        layout="@layout/tiezi_item_bottom"
+        />
+
+</LinearLayout>

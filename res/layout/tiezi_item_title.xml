@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+     >
+
+    <ImageView
+        android:id="@+id/tiezi_head_imageview"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="10.0dip"
+        android:layout_marginTop="10.0dip"
+        android:maxHeight="40dp"
+        android:maxWidth="40dp"
+        android:src="@drawable/male" />
+
+    <TextView
+        android:id="@+id/tiezi_head_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/tiezi_head_imageview"
+        android:layout_toRightOf="@+id/tiezi_head_imageview"
+        android:gravity="center_vertical"
+        android:text="@string/anonymous" />
+
+    <TextView
+        android:id="@+id/tiezi_head_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10.0dip"
+        android:layout_marginLeft="10.0dip"
+        android:layout_marginRight="10.0dip"
+        android:layout_marginTop="10.0dip"
+        android:text="@string/time" />
+
+</RelativeLayout>
