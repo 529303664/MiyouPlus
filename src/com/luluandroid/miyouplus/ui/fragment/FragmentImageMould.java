@@ -23,7 +23,7 @@ public class FragmentImageMould extends Fragment {
 	private Context context;
 	private TextView returnTextView;
 	private GridView mGridView;
-	private int currentResId = R.drawable.l_2;//当前选定的图片资源ID
+	
 			
 	private Integer[] mThumbIds = {
 			R.drawable.s_1,R.drawable.s_2,R.drawable.s_3,R.drawable.s_4,R.drawable.s_5,R.drawable.s_6,
@@ -71,7 +71,7 @@ public class FragmentImageMould extends Fragment {
 				//点击不同的素材模板给发帖模块背景进行配色 
 				((CreateTieziActivity)getActivity()).setPicchange(false);
 				((ImageView)getActivity().findViewById(R.id.create_tiezi_imageview1)).setImageResource(mBackGroundIds[position]);
-				setCurrentResId(mBackGroundIds[position]);
+				((CreateTieziActivity)getActivity()).setCurrentResId(mBackGroundIds[position]);
 				Toast.makeText(context, ""+position,Toast.LENGTH_SHORT).show();//显示信息;
 			}
 		});
@@ -95,20 +95,5 @@ public class FragmentImageMould extends Fragment {
 		initView();
 	}
 
-	/**
-	 * //获取当前选定的图片资源ID
-	 * @return
-	 */
-	public int getCurrentResId() {
-		return currentResId;
-	}
-
-	/**
-	 * 设置当前选定的图片资源ID
-	 * @param currentResId
-	 */
-	public void setCurrentResId(int currentResId) {
-		this.currentResId = currentResId;
-	}
 	
 }

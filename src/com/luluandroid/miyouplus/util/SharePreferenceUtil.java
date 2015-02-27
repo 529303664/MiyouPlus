@@ -22,6 +22,8 @@ public class SharePreferenceUtil {
 	private String SHARED_KEY_NOTIFY = "shared_key_notify";
 	private String SHARED_KEY_VOICE = "shared_key_sound";
 	private String SHARED_KEY_VIBRATE = "shared_key_vibrate";
+	private String SHARED_KEY_SELF_PASSWORD = "shared_key_self_password";
+	private String SHARED_KEY_MIYOU_PASSWORD = "shared_key_miyou_password";
 	
 	// 是否允许推送通知
 	public boolean isAllowPushNotify() {
@@ -52,5 +54,25 @@ public class SharePreferenceUtil {
 		editor.putBoolean(SHARED_KEY_VIBRATE, isChecked);
 		editor.commit();
 	}
+	
+	// 允许密码保护秘友内容
+	public boolean isAllowSelfPassword() {
+			return mSharedPreferences.getBoolean(SHARED_KEY_SELF_PASSWORD, false);
+		}
+
+		public void setAllowSelfPasswordEnable(boolean isChecked) {
+			editor.putBoolean(SHARED_KEY_SELF_PASSWORD, isChecked);
+			editor.commit();
+		}
+		
+		// 获取和设置密码
+		public String getMiyouPassword() {
+				return mSharedPreferences.getString(SHARED_KEY_MIYOU_PASSWORD, "");
+			}
+
+			public void setMiYouPassword(String password) {
+				editor.putString(SHARED_KEY_MIYOU_PASSWORD, password);
+				editor.commit();
+			}
 
 }

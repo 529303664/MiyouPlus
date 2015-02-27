@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical" 
     android:background="@color/white"
     >
@@ -18,16 +18,17 @@
             android:id="@+id/tiezi_imageview1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/l_10"
-            android:scaleType="fitCenter" />
+            android:src="@drawable/l_10"
+            android:scaleType="centerCrop"
+             />
 
         <com.rockerhieu.emojicon.EmojiconTextView
             android:id="@+id/tiezi_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@null"
-            android:gravity="center"
-             />
+            android:gravity="center" />
+
     </FrameLayout>
     <include 
         layout="@layout/tiezi_item_bottom"

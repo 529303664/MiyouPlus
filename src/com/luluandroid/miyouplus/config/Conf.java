@@ -6,6 +6,8 @@ import android.os.Build.VERSION;
 
 public class Conf {
 
+	public static final String MIBO_Serealizable_key = "miboSeaLb_key";
+	public static final String MIBO_SHOW_keyString = "miboshowkey";
 	public static final String APP_SDCARD_PATH= FileManager.getInstance().getSdDir().getAbsolutePath()+"/MiYou";
 	public static final String APP_SDCARD_CACHE_PATH= FileManager.getInstance().getSdDir().getAbsolutePath()+"/MiYou/Cache";
 	public static final String APP_SDCARD_ALBUM_PATH = FileManager.getInstance().getSdDir().getAbsolutePath()+"/MiYou/Album";

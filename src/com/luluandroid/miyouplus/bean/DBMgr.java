@@ -1,6 +1,10 @@
 package com.luluandroid.miyouplus.bean;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.luluandroid.miyouplus.bean.Mibos.MessageType;
+import com.luluandroid.miyouplus.util.TimeUtil;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -35,6 +39,7 @@ public class DBMgr {
 	 * @return
 	 */
 	public synchronized SQLiteDatabase getDb() {
+		Log.i("DATABASE", "重新申请数据库连接");
 		if(this.databaseHelper == null) {
 			Log.e("DATABASE", "databaseHelper 为空!!正在申请databasehelper!!");
 			this.databaseHelper = new DatabaseHelper(context);
@@ -44,6 +49,7 @@ public class DBMgr {
 		}
 		if(db == null){
 			db = databaseHelper.getWritableDatabase();
+			Log.e("DATABASE", "databaseHelper.getWritableDatabase()  执行成功!!");
 		}
 		return db;
 	}
@@ -63,7 +69,7 @@ public class DBMgr {
 		
 	}
 
-	public boolean tableIsEmpty(String tablename) {
+	public boolean tableIsNotEmpty(String tablename) {
 		Cursor c = db.rawQuery("SELECT * FROM " + tablename, null);
 		if (c != null && c.getCount() > 0) {
 			c.close();
@@ -107,7 +113,7 @@ public class DBMgr {
 	}
 	
 	public void checkDbOpen(){
-		if(!db.isOpen())
+		if(!db.isOpen()||db == null)
 			db = getDb();
 	}
 	
@@ -117,32 +123,156 @@ public class DBMgr {
 		ContentValues cv = new ContentValues();
 		for(Mibos mibo : miboList){
 			try {
+				cv.put(TieZiSchema.COLUMN_BMOB_ID, mibo.getObjectId());
 				cv.put(TieZiSchema.COLUMN_USER, mibo.getHeadUserName());
 				cv.put(TieZiSchema.COLUMN_CONTENT, mibo.getContent());
-				cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount().toString());
-				cv.put(TieZiSchema.COLUMN__COMMENT_COUNT, String.valueOf(mibo.getComment().size()));
-				cv.put(TieZiSchema.COLUMN_PARENT_ID, String.valueOf(mibo.getParentId()));
-				cv.put(TieZiSchema.COLUMN_OPEN, String.valueOf(mibo.isOpentoAll()));
-				cv.put(TieZiSchema.COLUMN_FRCMOL, String.valueOf(mibo.isFriendCommentOnly()));
+				cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount());
+				cv.put(TieZiSchema.COLUMN_COMCOUNT, mibo.getCommentCount());
+				cv.put(TieZiSchema.COLUMN_PARENT_ID, mibo.getParentId());
+				cv.put(TieZiSchema.COLUMN_OPEN, mibo.isOpentoAll());
+				cv.put(TieZiSchema.COLUMN_FRCMOL, mibo.isFriendCommentOnly());
 				cv.put(TieZiSchema.COLUMN_PIC_NAME, mibo.getLocalPicName());
+				cv.put(TieZiSchema.COLUMN_PIC_RES_ID, mibo.getPicResourceId());
 				cv.put(TieZiSchema.COLUMN_MESSAGE_TYPE, mibo.getType().name());
 				if(mibo.getUpdatedAt() == null){
-					cv.put(TieZiSchema.COLUMN_MESSAGE_TIME, mibo.getCreatedAt().toString());
+					cv.put(TieZiSchema.COLUMN_MESSAGE_TIME, TimeUtil.stringToLong(mibo.getCreatedAt(), TimeUtil.FORMAT_DATE_TIME2));
 				}else{
-					cv.put(TieZiSchema.COLUMN_MESSAGE_TIME, mibo.getUpdatedAt().toString());
+					cv.put(TieZiSchema.COLUMN_MESSAGE_TIME, TimeUtil.stringToLong(mibo.getUpdatedAt(), TimeUtil.FORMAT_DATE_TIME2));
 				}
 				db.insert(TieZiSchema.TABLE_NAME, null, cv);
-				db.setTransactionSuccessful();
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				Log.e("database", e.toString());
+				db.endTransaction();
 				return false;
 			}finally{
 				cv.clear();
 			}
-			db.endTransaction();
 		}
+		db.setTransactionSuccessful();
+		db.endTransaction();
+//		db.close();
 		return true;
+	}
+	
+	public boolean updateTiezi(List<Mibos> miboList){
+		boolean flag = false;
+		flag = tableIsNotEmpty(TieZiSchema.TABLE_NAME);
+		if(!flag)return flag;
+			checkDbOpen();
+			db.beginTransaction();
+			ContentValues cv = new ContentValues();
+			for(Mibos mibo : miboList){
+				try {
+					cv.put(TieZiSchema.COLUMN_BMOB_ID, mibo.getObjectId());
+					cv.put(TieZiSchema.COLUMN_USER, mibo.getHeadUserName());
+					cv.put(TieZiSchema.COLUMN_CONTENT, mibo.getContent());
+					cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount());
+					cv.put(TieZiSchema.COLUMN_COMCOUNT, mibo.getCommentCount());
+					cv.put(TieZiSchema.COLUMN_PARENT_ID, mibo.getParentId());
+					cv.put(TieZiSchema.COLUMN_OPEN, mibo.isOpentoAll());
+					cv.put(TieZiSchema.COLUMN_FRCMOL, mibo.isFriendCommentOnly());
+					cv.put(TieZiSchema.COLUMN_PIC_NAME, mibo.getLocalPicName());
+					cv.put(TieZiSchema.COLUMN_PIC_RES_ID, mibo.getPicResourceId());
+					cv.put(TieZiSchema.COLUMN_MESSAGE_TYPE, mibo.getType().name());
+					if(mibo.getUpdatedAt() == null){
+						cv.put(TieZiSchema.COLUMN_MESSAGE_TIME, TimeUtil.stringToLong(mibo.getCreatedAt(), TimeUtil.FORMAT_DATE_TIME2));
+					}else{
+						cv.put(TieZiSchema.COLUMN_MESSAGE_TIME, TimeUtil.stringToLong(mibo.getUpdatedAt(), TimeUtil.FORMAT_DATE_TIME2));
+					}
+					db.update(TieZiSchema.TABLE_NAME, cv, TieZiSchema.COLUMN_BMOB_ID+" = ?", new String[]{mibo.getObjectId()});
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					Log.e("database", e.toString());
+					db.endTransaction();
+					return false;
+				}finally{
+					cv.clear();
+				}
+			}
+			db.setTransactionSuccessful();
+			db.endTransaction();
+		return flag;
+	}
+	
+	public boolean deleteTiezi(List<Mibos>miboList){
+		if(!tableIsNotEmpty(TieZiSchema.TABLE_NAME))
+			return false;
+		checkDbOpen();
+		db.beginTransaction();
+		for(Mibos mibo : miboList){
+			db.delete(TieZiSchema.TABLE_NAME, TieZiSchema.COLUMN_BMOB_ID+" = ?",
+					new String[]{mibo.getObjectId()});
+		}
+		db.setTransactionSuccessful();
+		db.endTransaction();
+		return true;
+	}
+	
+	public boolean deleteAllTiezi(){
+		if(!tableIsNotEmpty(TieZiSchema.TABLE_NAME))
+			return false;
+		checkDbOpen();
+		String sql = "DELETE FROM "+TieZiSchema.TABLE_NAME+";";
+		db.execSQL(sql);
+		return true;
+	}
+
+	/**
+	 * @param parentId parentId 当为-1时，代表查询父贴，否则查询为某parentId下的评论
+	 * @return
+	 */
+	public List<Mibos>queryRelatedTiezi(String parentId){
+		Cursor c = queryTheCursorRelatedTiezi(parentId);
+		
+		if(c == null || c.getCount()<=0){
+			return null;
+		}
+		List<Mibos> miboList = new ArrayList<Mibos>();
+		while(c.moveToNext()){
+			Mibos mibo = new Mibos(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_USER)),
+					c.getString(c.getColumnIndex(TieZiSchema.COLUMN_CONTENT)),
+					c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_FAVOR)));
+			mibo.setObjectId(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_BMOB_ID)));
+			mibo.setParentId(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_PARENT_ID)));
+			if(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_OPEN))==1){
+				mibo.setOpentoAll(true);
+			}else{
+				mibo.setOpentoAll(false);
+			}
+			if(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_FRCMOL))==1){
+				mibo.setFriendCommentOnly(true);
+			}else{
+				mibo.setFriendCommentOnly(false);
+			}
+			mibo.setLocalPicName(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_PIC_NAME)));
+			mibo.setPicResourceId(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_PIC_RES_ID)));
+			/*if(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_MESSAGE_TYPE)).equals("TEXT")){
+				mibo.setType(MessageType.TEXT);
+			}else{
+				mibo.setType(MessageType.TEXTANDPICTURE);
+			}*/
+			mibo.setTableName(TieZiSchema.TABLE_NAME);
+			miboList.add(mibo);
+		}
+		c.close();
+		return miboList;
+	}
+	
+	
+	/**
+	 * @param parentId 当为-2时，表示查询全部;当为-1时，代表查询父贴;否则查询为某parentId下的评论
+	 * @return
+	 */
+	public Cursor queryTheCursorRelatedTiezi(String parentId){
+		Cursor c;
+		if(parentId.equals("-2")){
+			c = db.rawQuery("select * from "+TieZiSchema.TABLE_NAME, null);
+		}
+		c = db.rawQuery("select * from "+TieZiSchema.TABLE_NAME+
+				" where "+TieZiSchema.COLUMN_PARENT_ID+" = ?"+" order by "+TieZiSchema.COLUMN_MESSAGE_TIME, new String[]{parentId});
+		return c;
 	}
 	
 }

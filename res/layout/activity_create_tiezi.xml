@@ -9,7 +9,7 @@ android:paddingTop="?attr/actionBarSize"
 让处于actionbar启用叠加模式的情况下，保持下面的布局始终位于actionbar下部
     -->
 
-    <FrameLayout
+   <FrameLayout
         android:id="@+id/create_tiezi_framelayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,10 +31,7 @@ android:paddingTop="?attr/actionBarSize"
             android:gravity="center"
             android:hint="@string/create_tiezi_hint"
             />
-        
-        <!-- <EditText
-            
-             /> -->
+
 
         <ProgressBar
             android:id="@+id/create_tiezi_progressBar1"
@@ -67,9 +64,9 @@ android:paddingTop="?attr/actionBarSize"
             layout="@layout/craete_tiezi_controlbar"
             android:focusable="true" />
 
-        <View
+        <ImageView
             android:layout_width="fill_parent"
-            android:layout_height="2px"
+            android:layout_height="2dp"
             android:layout_marginTop="10dp"
             android:background="?android:attr/listDivider" />
 

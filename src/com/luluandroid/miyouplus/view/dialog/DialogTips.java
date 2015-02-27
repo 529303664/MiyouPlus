@@ -47,6 +47,7 @@ public class DialogTips extends DialogBase {
 		super.setTitle(title);
 		super.setCancel(isCancel);
 	}
+	
 
 	/**
 	 * 创建对话框

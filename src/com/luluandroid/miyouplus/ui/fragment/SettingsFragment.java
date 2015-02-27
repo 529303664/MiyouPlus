@@ -3,16 +3,21 @@ package com.luluandroid.miyouplus.ui.fragment;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import cn.bmob.im.BmobUserManager;
 
+import com.luluandroid.miyouplus.EditMyMiboActivity;
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.main.CustomApplcation;
 import com.luluandroid.miyouplus.ui.BlackListActivity;
@@ -32,15 +37,16 @@ import com.luluandroid.miyouplus.util.SharePreferenceUtil;
 @SuppressLint("SimpleDateFormat")
 public class SettingsFragment extends FragmentBase implements OnClickListener{
 
-	Button btn_logout;
-	TextView tv_set_name;
-	RelativeLayout layout_info, rl_switch_notification, rl_switch_voice,
-			rl_switch_vibrate,layout_blacklist;
+	EditText miyou_password_editText,clear_miyou_password_editText;
+	Button btn_logout,miyou_password_button,clear_miyou_password_button;
+	TextView tv_set_name,miyou_password_textView;
+	RelativeLayout layout_info,layout_clear_miyou_password, rl_switch_miyou_password,rl_set_miyoupassword,rl_switch_notification, rl_switch_voice,
+	rl_switch_vibrate,layout_blacklist,layout_mymibo,layout_mycomment;
 
-	ImageView iv_open_notification, iv_close_notification, iv_open_voice,
+	ImageView iv_open_miyou_password,iv_close_miyou_password,iv_open_notification, iv_close_notification, iv_open_voice,
 			iv_close_voice, iv_open_vibrate, iv_close_vibrate;
 	
-	View view1,view2;
+	View view1,view2,view3;
 	SharePreferenceUtil mSharedUtil;
 	
 
@@ -70,15 +76,27 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 		initTopBarForOnlyTitle("设置");
 		//黑名单列表
 		layout_blacklist = (RelativeLayout) findViewById(R.id.layout_blacklist);
-		
 		layout_info = (RelativeLayout) findViewById(R.id.layout_info);
+		rl_set_miyoupassword = (RelativeLayout) findViewById(R.id.rl_set_miyoupassword);
+		rl_switch_miyou_password = (RelativeLayout) findViewById(R.id.rl_switch_miyou_password);
 		rl_switch_notification = (RelativeLayout) findViewById(R.id.rl_switch_notification);
 		rl_switch_voice = (RelativeLayout) findViewById(R.id.rl_switch_voice);
 		rl_switch_vibrate = (RelativeLayout) findViewById(R.id.rl_switch_vibrate);
+		layout_mymibo = (RelativeLayout) findViewById(R.id.layout_mymibo);
+		layout_mycomment = (RelativeLayout) findViewById(R.id.layout_mycomment);
+		layout_clear_miyou_password = (RelativeLayout) findViewById(R.id.layout_clear_miyou_password);
+		layout_clear_miyou_password.setOnClickListener(this);
+		rl_switch_miyou_password.setOnClickListener(this);
 		rl_switch_notification.setOnClickListener(this);
 		rl_switch_voice.setOnClickListener(this);
 		rl_switch_vibrate.setOnClickListener(this);
+		layout_mymibo.setOnClickListener(this);
+		layout_mycomment.setOnClickListener(this);
 
+		clear_miyou_password_editText = (EditText)findViewById(R.id.clear_miyou_password_editText);
+		miyou_password_editText = (EditText)findViewById(R.id.miyou_password_editText);
+		iv_open_miyou_password = (ImageView) findViewById(R.id.iv_open_miyou_password);
+		iv_close_miyou_password = (ImageView) findViewById(R.id.iv_close_miyou_password);
 		iv_open_notification = (ImageView) findViewById(R.id.iv_open_notification);
 		iv_close_notification = (ImageView) findViewById(R.id.iv_close_notification);
 		iv_open_voice = (ImageView) findViewById(R.id.iv_open_voice);
@@ -87,13 +105,26 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 		iv_close_vibrate = (ImageView) findViewById(R.id.iv_close_vibrate);
 		view1 = (View) findViewById(R.id.view1);
 		view2 = (View) findViewById(R.id.view2);
+		view3 = (View) findViewById(R.id.view3);
 
 		tv_set_name = (TextView) findViewById(R.id.tv_set_name);
+		miyou_password_textView = (TextView)findViewById(R.id.miyou_password_textView);
 		btn_logout = (Button) findViewById(R.id.btn_logout);
+		clear_miyou_password_button = (Button)findViewById(R.id.clear_miyou_password_button);
+		miyou_password_button = (Button)findViewById(R.id.miyou_password_button);
+		clear_miyou_password_button.setOnClickListener(this);
+		miyou_password_button.setOnClickListener(this);
 
 		// 初始化
+		boolean isAllowSelfPassword = mSharedUtil.isAllowSelfPassword();
+		if (isAllowSelfPassword) {
+			iv_open_miyou_password.setVisibility(View.VISIBLE);
+			iv_close_miyou_password.setVisibility(View.INVISIBLE);
+		} else {
+			iv_open_notification.setVisibility(View.INVISIBLE);
+			iv_close_notification.setVisibility(View.VISIBLE);
+		}
 		boolean isAllowNotify = mSharedUtil.isAllowPushNotify();
-		
 		if (isAllowNotify) {
 			iv_open_notification.setVisibility(View.VISIBLE);
 			iv_close_notification.setVisibility(View.INVISIBLE);
@@ -117,10 +148,64 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 			iv_open_vibrate.setVisibility(View.INVISIBLE);
 			iv_close_vibrate.setVisibility(View.VISIBLE);
 		}
+		
+		isEmptyMiyouPassword();
+		
 		btn_logout.setOnClickListener(this);
 		layout_info.setOnClickListener(this);
 		layout_blacklist.setOnClickListener(this);
-
+		
+		clear_miyou_password_editText.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				if(s.toString().trim().length()<4){
+					clear_miyou_password_button.setClickable(false);
+				}else{
+					clear_miyou_password_button.setClickable(true);
+				}
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		miyou_password_editText.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				if(s.toString().trim().length()<4){
+					miyou_password_button.setClickable(false);
+				}else{
+					miyou_password_button.setClickable(true);
+				}
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 	private void initData() {
@@ -150,6 +235,26 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 			CustomApplcation.getInstance().logout();
 			getActivity().finish();
 			startActivity(new Intent(getActivity(), LoginActivity.class));
+			break;
+		case R.id.layout_mymibo:
+			intent = new Intent(getActivity(),EditMyMiboActivity.class);
+			Bundle bundle = new Bundle();
+			bundle.putBoolean("isMiboOrComment", true);
+			intent.putExtras(bundle);
+			startActivity(intent);
+			break;
+		case R.id.layout_mycomment:
+			intent = new Intent(getActivity(),EditMyMiboActivity.class);
+			bundle = new Bundle();
+			bundle.putBoolean("isMiboOrComment", false);
+			intent.putExtras(bundle);
+			startActivity(intent);
+			break;
+		case R.id.layout_clear_miyou_password:
+			actToClearPwd();
+			break;
+		case R.id.clear_miyou_password_button:
+			writeToClearPwd();
 			break;
 		case R.id.rl_switch_notification:
 			if (iv_open_notification.getVisibility() == View.VISIBLE) {
@@ -194,8 +299,91 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 				mSharedUtil.setAllowVibrateEnable(true);
 			}
 			break;
-
+		case R.id.rl_switch_miyou_password:
+			rl_set_miyoupassword.setVisibility(View.VISIBLE);
+			view3.setVisibility(View.VISIBLE);
+			break;
+		case R.id.miyou_password_button:
+			writeToPassword();
+			default:
+				break;
 		}
+	}
+	
+	private void writeToClearPwd(){
+		if(isCorrcetPwd(clear_miyou_password_editText.getText().toString().trim())){
+			mSharedUtil.setMiYouPassword("");
+			mSharedUtil.setAllowSelfPasswordEnable(false);
+			iv_open_miyou_password.setVisibility(View.INVISIBLE);
+			iv_close_miyou_password.setVisibility(View.VISIBLE);
+			ShowToast("清除密码成功");
+		}else{
+			ShowToast("清除密码失败："+"密码不正确！");
+		}
+		clear_miyou_password_editText.setText("");
+		clear_miyou_password_button.setVisibility(View.INVISIBLE);
+		clear_miyou_password_editText.setVisibility(View.INVISIBLE);
+	}
+	
+	private void actToClearPwd(){
+		if(isEmptyMiyouPassword()){
+			ShowToast("无设置密码");
+		}else{
+			clear_miyou_password_button.setVisibility(View.VISIBLE);
+			clear_miyou_password_editText.setVisibility(View.VISIBLE);
+		}
+		miyou_password_editText.setText("");
+		rl_set_miyoupassword.setVisibility(View.GONE);
+		view3.setVisibility(View.GONE);
+	}
+	
+	private boolean isEmptyMiyouPassword(){
+		String password = mSharedUtil.getMiyouPassword();
+		if(null == password || "".equals(password)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private boolean isCorrcetPwd(String writedPwd){
+		String password = mSharedUtil.getMiyouPassword();
+		return password.equals(writedPwd);
+	}
+	
+	private void writeToPassword(){
+		if(isEmptyMiyouPassword()){
+			mSharedUtil.setMiYouPassword(miyou_password_editText.getText().toString().trim());
+			ShowToast(miyou_password_editText.getText().toString().trim());
+			mSharedUtil.setAllowSelfPasswordEnable(true);
+			iv_open_miyou_password.setVisibility(View.VISIBLE);
+			iv_close_miyou_password.setVisibility(View.INVISIBLE);
+			ShowToast("添加密码成功！！");
+		}else{
+			if(isCorrcetPwd(miyou_password_editText.getText().toString().trim())){
+				mSharedUtil.setMiYouPassword(miyou_password_editText.getText().toString().trim());
+				ShowToast(miyou_password_editText.getText().toString().trim());
+				if(mSharedUtil.isAllowSelfPassword()){
+					mSharedUtil.setAllowSelfPasswordEnable(false);
+					iv_open_miyou_password.setVisibility(View.INVISIBLE);
+					iv_close_miyou_password.setVisibility(View.VISIBLE);
+					ShowToast("密码正确,设置已变更！！");
+				}else{
+					mSharedUtil.setAllowSelfPasswordEnable(true);
+					iv_open_miyou_password.setVisibility(View.VISIBLE);
+					iv_close_miyou_password.setVisibility(View.INVISIBLE);
+				}
+			}else{
+				ShowToast("错误密码！！");
+			}
+		}
+		miyou_password_editText.setText("");
+		rl_set_miyoupassword.setVisibility(View.GONE);
+		view3.setVisibility(View.GONE);
+		
+		clear_miyou_password_editText.setText("");
+		clear_miyou_password_button.setVisibility(View.INVISIBLE);
+		clear_miyou_password_editText.setVisibility(View.INVISIBLE);
 	}
 
 }

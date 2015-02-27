@@ -23,6 +23,11 @@ public class User extends BmobChatUser {
 	private BmobRelation blogs;
 	
 	/**
+	 * 发布的秘博列表
+	 */
+	private BmobRelation miboRelation;
+	
+	/**
 	 * //显示数据拼音的首字母
 	 */
 	private String sortLetters;
@@ -70,5 +75,10 @@ public class User extends BmobChatUser {
 	public void setSortLetters(String sortLetters) {
 		this.sortLetters = sortLetters;
 	}
-	
+	public BmobRelation getMiboRelation() {
+		return miboRelation;
+	}
+	public void setMiboRelation(BmobRelation mibos) {
+		this.miboRelation = mibos;
+	}
 }

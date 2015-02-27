@@ -5,10 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
 import java.util.List;
 import java.util.Vector;
 
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.support.v7.app.ActionBarActivity;
@@ -40,15 +42,19 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import cn.bmob.im.BmobUserManager;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.datatype.BmobRelation;
 import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.listener.UpdateListener;
 import cn.bmob.v3.listener.UploadFileListener;
 
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.bean.DBMgr;
 import com.luluandroid.miyouplus.bean.Mibos;
 import com.luluandroid.miyouplus.bean.Mibos.MessageType;
+import com.luluandroid.miyouplus.bean.User;
 import com.luluandroid.miyouplus.config.ChannelCodes;
 import com.luluandroid.miyouplus.config.Conf;
 import com.luluandroid.miyouplus.extra.ShowToast;
@@ -60,6 +66,8 @@ import com.luluandroid.miyouplus.util.FileManager;
 import com.luluandroid.miyouplus.util.ImageManager;
 import com.luluandroid.miyouplus.util.ImageTools;
 import com.luluandroid.miyouplus.util.TimeUtil;
+import com.luluandroid.miyouplus.view.dialog.DialogProgress;
+import com.luluandroid.miyouplus.view.dialog.DialogTips;
 import com.rockerhieu.emojicon.EmojiconGridFragment;
 import com.rockerhieu.emojicon.EmojiconsFragment;
 import com.rockerhieu.emojicon.emoji.Emojicon;
@@ -69,6 +77,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		EmojiconsFragment.OnEmojiconBackspaceClickedListener {
 
 	private ActionBar actionbar;
+	private MenuItem action_create_tiezi_item; // actionbar 发帖按钮
 	private Fragment currentFragment, emotionFragment;
 	private FragmentImageMould MouldFragment;
 	private FragmentCreatetieziNavigation navigationFrament;
@@ -79,7 +88,11 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	private ImageView navigationLfBt, navigationRtBt, imageBackgroud;
 	private EditText myMessageEditext;
 	private TextView emotionText;
-	private boolean NvIsOpen, IsAsynctaskOk;// 分别是判断导航是否开启和处理图片的Asynctask是否正在运行
+	private boolean NvIsOpen, IsAsynctaskOk;// 分别是判断导航是否开启和处理图片的Asynctask是否正在运行
+	private DialogProgress progressDialog;
+	private int currentResId = R.drawable.l_2;//当前选定的图片资源ID
+	
+	private BmobUserManager userManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +105,9 @@ public class CreateTieziActivity extends ActionBarActivity implements
 					.add(R.id.create_tiezi_container, navigationFrament)
 					.commit();
 		}
+		
+		userManager = BmobUserManager.getInstance(this);
+		
 		InitActionBar();
 		initComponent();
 		CustomApplcation.getInstance().addActivity(this);
@@ -174,17 +190,34 @@ public class CreateTieziActivity extends ActionBarActivity implements
 			}
 		});
 
-		/*
-		 * 监听Editext内容改变时 myMessageEdixt.addTextChangedListener(new
-		 * TextWatcherAdapter(){
-		 * 
-		 * @Override public void onTextChanged(CharSequence s, int start, int
-		 * before, int count) { // 可以在这获取内容
-		 * 
-		 * super.onTextChanged(s, start, before, count); }
-		 * 
-		 * });
-		 */
+		myMessageEditext.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				if(TextUtils.isEmpty(s)){
+					action_create_tiezi_item.setIcon(R.drawable.ic_action_un_send_now);
+					action_create_tiezi_item.setEnabled(false);
+				}else{
+					action_create_tiezi_item.setIcon(R.drawable.ic_action_send_now);
+					action_create_tiezi_item.setEnabled(true);
+				}
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		 
 	}
 
 	/*
@@ -202,6 +235,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.create_tiezi, menu);
+		action_create_tiezi_item = menu.findItem(R.id.action_create_tiezi_write);
 		return true;
 	}
 
@@ -221,6 +255,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		case R.id.action_create_tiezi_write:
 			// 数据发送
 			if (IsAsynctaskOk) {
+				myHandler.sendEmptyMessage(ChannelCodes.DIALOG_SHOW);
 				 saveAll();
 			}
 		default:
@@ -237,6 +272,21 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		actionbar.setDisplayHomeAsUpEnabled(true);
 	}
 
+	public void showProgressDialog(){
+		if(progressDialog == null){
+			progressDialog = new DialogProgress(this, "正在发帖,请稍后……", "发帖", false, true);
+		}
+		progressDialog.show();
+	}
+	
+	public void hideProgressDialog(){
+		if(progressDialog == null){
+			Log.e("CreateTieziActivity", "progressDialog 为空,隐藏调用失败");
+			return;
+		}
+		progressDialog.dismiss();
+	}
+	
 	private Handler myHandler = new Handler() {
 
 		@Override
@@ -246,16 +296,23 @@ public class CreateTieziActivity extends ActionBarActivity implements
 			switch (msg.what) {
 			case ChannelCodes.CREATE_TIEZI_SUCCESS:
 				setResult(ChannelCodes.CREATE_TIEZI_SUCCESS);
+				hideProgressDialog();
 				finish();
 				break;
 			case ChannelCodes.CREATE_TIEZI_FAIL:
+				hideProgressDialog();
 				setResult(ChannelCodes.CREATE_TIEZI_FAIL);
 				finish();
+				break;
+			case ChannelCodes.DIALOG_SHOW:
+				showProgressDialog();
+				break;
+			case ChannelCodes.DIALOG_DISMISS:
+				hideProgressDialog();
 				break;
 			default:
 				break;
 			}
-
 		}
 
 	};
@@ -569,7 +626,10 @@ public class CreateTieziActivity extends ActionBarActivity implements
 					+ System.currentTimeMillis());
 			SaveLocalImage(mibo);
 			// 网络保存
-			final BmobFile bmobfile = new BmobFile(new File(Conf.APP_SDCARD_ALBUM_PATH, mibo.getLocalPicName()+".jpg"));
+//			final BmobFile bmobfile = new BmobFile(new File(Conf.APP_SDCARD_ALBUM_PATH, mibo.getLocalPicName()+".jpg"));
+			final BmobFile bmobfile = new BmobFile(new File(FileManager.getInstance().
+					getAlbumStorageDir(this, Conf.SD_Album_Dir_Name), mibo
+					.getLocalPicName()+".jpg"));
 			bmobfile.uploadblock(this, new UploadFileListener() {
 
 				@Override
@@ -597,7 +657,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 				}
 			});
 		} else {
-			mibo.setPicResourceId(MouldFragment.getCurrentResId());
+			mibo.setPicResourceId(getCurrentResId());
 			SaveMiboToNetWork(mibo, null);
 		}
 	}
@@ -612,12 +672,13 @@ public class CreateTieziActivity extends ActionBarActivity implements
 			public void onSuccess() {
 				// TODO Auto-generated method stub
 				Log.i("mibo", "秘博保存到网络成功:" + mibo.getObjectId());
+				addMiboToUser(mibo);
 				// 进行已发送帖子的本地保存
-				 if(SaveLocal(mibo)){
+				 /*if(SaveLocal(mibo)){
 					 myHandler.sendEmptyMessage(ChannelCodes.CREATE_TIEZI_SUCCESS);
 				 }else{
 					 myHandler.sendEmptyMessage(ChannelCodes.CREATE_TIEZI_FAIL);
-				 }
+				 }*/
 			}
 
 			@Override
@@ -641,9 +702,32 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	private Mibos saveMibo() {
 		Mibos mibo = new Mibos(BmobUser.getCurrentUser(this).getUsername(),
 				myMessageEditext.getText().toString(), Integer.valueOf("0"));
+		mibo.setMyUser((User) userManager.getCurrentUser(User.class));
 		return mibo;
 	}
 
+	private void addMiboToUser(Mibos mibo){
+		BmobRelation mibosRelation = new BmobRelation();
+		mibosRelation.add(mibo);
+		((User) userManager.getCurrentUser(User.class)).setMiboRelation(mibosRelation);
+		((User) userManager.getCurrentUser(User.class)).update(CreateTieziActivity.this, new UpdateListener() {
+			
+			@Override
+			public void onSuccess() {
+				// TODO Auto-generated method stub
+				Log.i("CreateTieziActivity", "关联秘博到用户成功");
+				myHandler.sendEmptyMessage(ChannelCodes.CREATE_TIEZI_SUCCESS);
+			}
+			
+			@Override
+			public void onFailure(int code, String error) {
+				// TODO Auto-generated method stub
+				Log.i("CreateTieziActivity", "关联秘博到用户失败："+"code:"+code+"error:"+error);
+				myHandler.sendEmptyMessage(ChannelCodes.CREATE_TIEZI_FAIL);
+				
+			}
+		});
+	}
 	/**
 	 * 保存帖子到数据库
 	 */
@@ -652,10 +736,11 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		List<Mibos> miboList = new Vector<Mibos>();
 
 		miboList.add(mibo);
-		if(!DBMgr.getInstance(getApplicationContext()).addTiezi(miboList)){
+		/*if(!DBMgr.getInstance(getApplicationContext()).addTiezi(miboList)){
 			return false;
 		}
 		return DBMgr.getInstance(getApplicationContext()).addTiezi(mibo.getComment());
+*/		return DBMgr.getInstance(getApplicationContext()).addTiezi(miboList);
 	}
 
 	/**
@@ -667,9 +752,28 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		Bitmap tempBitmap = imageBackgroud.getDrawingCache();
 		FileManager.getInstance().deleteFilesofSingleDir(
 				Conf.APP_SDCARD_CACHE_PATH);
-		ImageTools
+		/*ImageTools
 				.savePhotoToSDCard(tempBitmap, Conf.APP_SDCARD_ALBUM_PATH, mibo
-						.getLocalPicName(), ".jpg");
+						.getLocalPicName(), ".jpg");*/
+		ImageTools.savePhotoToAppPrivateSD(tempBitmap, FileManager.getInstance().
+				getAlbumStorageDir(this, Conf.SD_Album_Dir_Name), mibo
+				.getLocalPicName(), ".jpg");
+	}
+	
+	/**
+	 * //获取当前选定的图片资源ID
+	 * @return
+	 */
+	public int getCurrentResId() {
+		return currentResId;
+	}
+
+	/**
+	 * 设置当前选定的图片资源ID
+	 * @param currentResId
+	 */
+	public void setCurrentResId(int currentResId) {
+		this.currentResId = currentResId;
 	}
 
 }

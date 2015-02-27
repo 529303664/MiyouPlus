@@ -11,21 +11,17 @@
         layout="@layout/include_action_bar" />
 
     <com.luluandroid.miyouplus.view.xlist.XListView
-        android:id="@+id/fragment_miquan_listview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:cacheColorHint="@android:color/transparent"
-        android:divider="@null"
-        android:dividerHeight="15dp"
-        android:fadingEdgeLength="0dp"
-        android:fastScrollEnabled="true"
-        android:listSelector="@color/transparent"
-        android:transcriptMode="normal" >
-    </com.luluandroid.miyouplus.view.xlist.XListView>
+            android:id="@+id/fragment_miquan_listview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@null"
+            android:dividerHeight="15dp"
+            android:fadingEdgeLength="0dp"
+            android:fastScrollEnabled="true"
+            android:listSelector="@color/transparent"
+            android:transcriptMode="normal" >
+        </com.luluandroid.miyouplus.view.xlist.XListView>
 
-    <!--
-                 android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-    -->
 
 </LinearLayout>

@@ -12,17 +12,18 @@ import android.provider.BaseColumns;
  */
 public  class TieZiSchema implements  BaseColumns,TableCreateInterface{
 	private   String TEXT_TYPE = " TEXT";
-	private   String VARCHAR_TYPE = " VARCHAR(255)";
 	private   String COMMA_SEP = ",";
 	public static final String TABLE_NAME="mibo";
+	public static final String COLUMN_BMOB_ID = "bmobid";
 	public static final String COLUMN_USER="user";
 	public static final String COLUMN_CONTENT="content";
 	public static final String COLUMN_FAVOR="favors";
-	public static final String COLUMN__COMMENT_COUNT="comment_count";
+	public static final String COLUMN_COMCOUNT="comentcount";
 	public static final String COLUMN_PARENT_ID="parentid";
 	public static final String COLUMN_OPEN="open";
 	public static final String COLUMN_FRCMOL="friendcomentonly";
 	public static final String COLUMN_PIC_NAME="picname";
+	public static final String COLUMN_PIC_RES_ID="picresid";
 	public static final String COLUMN_MESSAGE_TYPE="messagetype";
 	public static final String COLUMN_MESSAGE_TIME="messagetime";
 	
@@ -40,14 +41,16 @@ public  class TieZiSchema implements  BaseColumns,TableCreateInterface{
 				+" "+ TieZiSchema.TABLE_NAME + " ("
 				+ TieZiSchema._ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
+				+ TieZiSchema.COLUMN_BMOB_ID + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_USER + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_CONTENT + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_FAVOR + TEXT_TYPE + COMMA_SEP
-				+ TieZiSchema.COLUMN__COMMENT_COUNT+TEXT_TYPE+COMMA_SEP
+				+ TieZiSchema.COLUMN_COMCOUNT + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_PARENT_ID+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_OPEN+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_FRCMOL+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_PIC_NAME+TEXT_TYPE+ COMMA_SEP
+				+ TieZiSchema.COLUMN_PIC_RES_ID+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_MESSAGE_TYPE+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_MESSAGE_TIME+TEXT_TYPE
 				+" )";

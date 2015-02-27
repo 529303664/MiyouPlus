@@ -34,9 +34,6 @@ public class BmobConstants {
 	public static final int REQUESTCODE_TAKE_LOCATION = 0x000003;//位置
 	public static final String EXTRA_STRING = "extra_string";
 	
-//	BmobObject表格的表格名
-	public static final String Table_mibo = "T_mibo";
-	
-	
 	public static final String ACTION_REGISTER_SUCCESS_FINISH ="register.success.finish";//注册成功之后登陆页面退出
+	
 }
