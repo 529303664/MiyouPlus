@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <Button
+        android:id="@+id/fragment_miyoupwd_cancel"
+        style="@style/Smile.Button.logout"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_alignLeft="@+id/fragment_miyoupwd_accept"
+        android:layout_alignRight="@+id/fragment_miyoupwd_accept"
+        android:layout_below="@+id/fragment_miyoupwd_accept"
+        android:layout_marginTop="23dp"
+        android:background="@drawable/btn_logout_selector"
+        android:text="取消" />
+
+    <Button
+        android:id="@+id/fragment_miyoupwd_accept"
+        style="@style/Smile.Button.theme"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_alignLeft="@+id/fragment_miyoupwd_editText"
+        android:layout_alignRight="@+id/fragment_miyoupwd_editText"
+        android:layout_below="@+id/fragment_miyoupwd_editText"
+        android:layout_marginTop="30dp"
+        android:text="确定"
+         />
+
+    <EditText
+        android:id="@+id/fragment_miyoupwd_editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:hint="密码>=4位"
+        android:ems="10"
+        android:inputType="numberPassword"
+        android:maxEms="10"
+        android:maxLength="10"
+         />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/fragment_miyoupwd_editText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="46dp"
+        android:text="请输入密码："
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+</RelativeLayout>

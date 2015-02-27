@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="vertical" >
+
+    <TextView
+        android:id="@+id/createtime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/content_textview"
+        android:text="我的秘博/评论时间"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <com.rockerhieu.emojicon.EmojiconTextView
+        android:id="@+id/content_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/createtime"
+        android:layout_marginLeft="10dp"
+        android:layout_toLeftOf="@+id/checkBox1"
+        android:autoLink="web|email|map"
+        android:lines="2"
+        android:maxHeight="60dp"
+        android:maxLines="5"
+        android:text="我的秘博/评论内容"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/black" />
+
+    <CheckBox
+        android:id="@+id/checkBox1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:focusable="false"
+         />
+
+</RelativeLayout>

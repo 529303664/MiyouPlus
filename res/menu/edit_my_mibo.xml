@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.luluandroid.miyouplus.EditMyMiboActivity" >
+    <item android:id="@+id/allselect" android:title="@string/allselect" android:orderInCategory="1" app:showAsAction="always"></item>
+    <item android:id="@+id/confirm" android:title="@string/delete" android:orderInCategory="2" app:showAsAction="always"></item>
+
+    
+
+</menu>

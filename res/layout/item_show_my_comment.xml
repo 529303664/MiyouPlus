@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <ImageView
+        android:id="@+id/show_mycomment_head_imageview"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:maxHeight="40dp"
+        android:maxWidth="40dp"
+        android:src="@drawable/male" />
+
+    <TextView
+        android:id="@+id/show_mycomment_head_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/show_mycomment_head_imageview"
+        android:layout_toRightOf="@+id/show_mycomment_head_imageview"
+        android:gravity="center_vertical"
+        android:text="@string/anonymous" />
+    
+    <TextView
+        android:id="@+id/show_mycomment_flor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/show_mycomment_head_imageview"
+        android:layout_alignLeft="@+id/show_mycomment_head_imageview"
+        android:gravity="center_vertical"
+        android:text="@string/florcount" />
+
+    <com.rockerhieu.emojicon.EmojiconTextView
+        android:id="@+id/show_mycomment_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/show_mycomment_head_username"
+        android:layout_toRightOf="@+id/show_mycomment_flor"
+        android:background="@null"
+        android:gravity="center"
+        android:height="30dp"
+        android:lines="2"
+        android:maxHeight="200dp"
+        android:maxLines="5" />
+    
+    <TextView
+        android:id="@+id/show_mycomment_head_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="@string/time" />
+
+</RelativeLayout>

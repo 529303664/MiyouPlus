@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <include
+                android:id="@+id/common_actionbar"
+                layout="@layout/include_action_bar"
+                android:layout_width="match_parent"
+    android:layout_height="@dimen/base_action_bar_height"
+                 />
+    
+    <ScrollView 
+    android:id="@+id/mibodetail_scrollView1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/common_actionbar"
+     >
+    
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/base_bg"
+            android:orientation="vertical" >
+            
+            <include
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="10dp"
+                layout="@layout/tiezi_item" />
+
+            <TextView
+                android:id="@+id/mibo_detail_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:gravity="left"
+                android:text="@string/comment"
+                android:textSize="20sp" />
+
+            <com.luluandroid.miyouplus.view.xlist.XListView
+                android:id="@+id/mibo_detail_comment_listview"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="2.0"
+                android:cacheColorHint="@android:color/transparent"
+                android:fadingEdgeLength="0dp"
+                android:fastScrollEnabled="true"
+                android:listSelector="@color/transparent"
+                android:transcriptMode="normal" >
+
+    </com.luluandroid.miyouplus.view.xlist.XListView>
+            
+            <RelativeLayout
+            android:id="@+id/mibo_detail_comment_re_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:layout_gravity="bottom"
+             >
+
+            <com.luluandroid.miyouplus.view.EditTextWithEmojiBtn
+                android:id="@+id/mibo_detail_comment_layout_input_editext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/mibo_detail_comment_layout_send_mibo_imageview"
+                android:gravity="start"
+                android:hint="@string/comment_hint"
+                android:lines="1"
+                android:maxLines="1" />
+
+            <fragment
+            android:id="@+id/mibo_detail_comment_emojiconsfragment"
+            android:layout_width="match_parent"
+        	android:layout_height="220dp"
+        	class="com.rockerhieu.emojicon.EmojiconsFragment"
+        	android:layout_below="@+id/mibo_detail_comment_layout_input_editext"
+             />
+
+            <ImageView
+                android:id="@+id/mibo_detail_comment_layout_send_mibo_imageview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/mibo_detail_comment_layout_input_editext"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:clickable="false"
+                android:src="@drawable/ic_action_un_send_now" />
+
+        </RelativeLayout>
+        </LinearLayout>
+</ScrollView>
+    
+</RelativeLayout>
+
