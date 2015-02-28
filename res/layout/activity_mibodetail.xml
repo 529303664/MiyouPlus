@@ -42,7 +42,7 @@
                 android:text="@string/comment"
                 android:textSize="20sp" />
 
-            <com.luluandroid.miyouplus.view.xlist.XListView
+            <com.luluandroid.miyouplus.view.ListViewForScrollView
                 android:id="@+id/mibo_detail_comment_listview"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -53,7 +53,7 @@
                 android:listSelector="@color/transparent"
                 android:transcriptMode="normal" >
 
-    </com.luluandroid.miyouplus.view.xlist.XListView>
+    </com.luluandroid.miyouplus.view.ListViewForScrollView>
             
             <RelativeLayout
             android:id="@+id/mibo_detail_comment_re_layout"
@@ -61,6 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:layout_gravity="bottom"
+            android:visibility="gone"
              >
 
             <com.luluandroid.miyouplus.view.EditTextWithEmojiBtn
@@ -73,7 +74,11 @@
                 android:gravity="start"
                 android:hint="@string/comment_hint"
                 android:lines="1"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:focusable="true"
+                 >
+                 <requestFocus />
+            </com.luluandroid.miyouplus.view.EditTextWithEmojiBtn>
 
             <fragment
             android:id="@+id/mibo_detail_comment_emojiconsfragment"

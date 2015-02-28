@@ -41,6 +41,8 @@ android:paddingTop="?attr/actionBarSize"
             android:layout_gravity="center"
             android:visibility="gone"
             />
+
+        
         
     </FrameLayout>
 
@@ -60,6 +62,30 @@ android:paddingTop="?attr/actionBarSize"
         android:background="@color/white"
         android:orientation="vertical" >
 
+        <LinearLayout 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <CheckBox
+            android:id="@+id/create_tiezi_contact_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="可聊天"
+            android:layout_weight="1.0"
+            android:checked="true"
+             />
+
+        	<CheckBox
+            android:id="@+id/create_tiezi_comment_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:text="可评论"
+            android:checked="true"
+             />
+        </LinearLayout>
+        
         <include
             layout="@layout/craete_tiezi_controlbar"
             android:focusable="true" />

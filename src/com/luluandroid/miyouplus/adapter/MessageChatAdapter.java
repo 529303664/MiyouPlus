@@ -157,7 +157,7 @@ public class MessageChatAdapter extends BaseListAdapter<BmobMsg> {
 		if(avatar!=null && !avatar.equals("")){//加载头像-为了不每次都加载头像
 			ImageLoader.getInstance().displayImage(avatar, iv_avatar, ImageLoadOptions.getOptions(),animateFirstListener);
 		}else{
-			iv_avatar.setImageResource(R.drawable.head);
+			iv_avatar.setImageDrawable(mContext.getResources().getDrawable(R.drawable.head));
 		}
 		
 		iv_avatar.setOnClickListener(new OnClickListener() {

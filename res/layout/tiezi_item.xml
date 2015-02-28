@@ -33,5 +33,99 @@
     <include 
         layout="@layout/tiezi_item_bottom"
         />
+	<LinearLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="20dp"
+	    android:layout_marginTop="5dp"
+	    android:orientation='horizontal'
+	    android:layout_marginBottom="5dp"
+	    >
 
+	    <ImageView
+	        android:id="@+id/tiezi_favor_img1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="fill_parent"
+	        android:layout_marginLeft="5dp"
+	        android:layout_marginRight="5dp"
+	        android:src="@drawable/image_emoticon" />
+
+	    <ImageView 
+	        android:id="@+id/tiezi_favor_img2"
+	        android:layout_width="wrap_content"
+	    	android:layout_height="fill_parent"
+	    	android:src="@drawable/image_emoticon2"
+	    	android:layout_marginRight="5dp"
+	        />
+	    <ImageView 
+	        android:id="@+id/tiezi_favor_img3"
+	        android:layout_width="wrap_content"
+	    	android:layout_height="fill_parent"
+	    	android:src="@drawable/image_emoticon3"
+	    	android:layout_marginRight="5dp"
+	        />
+	    <ImageView 
+	        android:id="@+id/tiezi_favor_img4"
+	        android:layout_width="wrap_content"
+	    	android:layout_height="fill_parent"
+	    	android:src="@drawable/image_emoticon4"
+	    	android:layout_marginRight="5dp"
+	        />
+	    <ImageView 
+	        android:id="@+id/tiezi_favor_img5"
+	        android:layout_width="wrap_content"
+	    	android:layout_height="fill_parent"
+	    	android:src="@drawable/image_emoticon5"
+	    	android:layout_marginRight="5dp"
+	        />
+	    <ImageView 
+	        android:id="@+id/tiezi_favor_img6"
+	        android:layout_width="wrap_content"
+	    	android:layout_height="fill_parent"
+	    	android:src="@drawable/image_emoticon6"
+	    	android:layout_marginRight="5dp"
+	        />
+	    <ImageView 
+	        android:id="@+id/tiezi_favor_img7"
+	        android:layout_width="wrap_content"
+	    	android:layout_height="fill_parent"
+	    	android:src="@drawable/image_emoticon7"
+	    	android:layout_marginRight="5dp"
+	        />
+	    <ImageView 
+	        android:id="@+id/tiezi_favor_img8"
+	        android:layout_width="wrap_content"
+	    	android:layout_height="fill_parent"
+	    	android:src="@drawable/image_emoticon8"
+	    	android:layout_marginRight="5dp"
+	        />
+	    <ImageView 
+	        android:id="@+id/tiezi_favor_img9"
+	        android:layout_width="wrap_content"
+	    	android:layout_height="fill_parent"
+	    	android:src="@drawable/image_emoticon9"
+	    	android:layout_marginRight="5dp"
+	        />
+	    
+	    <TextView
+	        android:id="@+id/tiezi_favor_img_count"
+	        android:layout_width="20dp"
+	        android:layout_height="fill_parent"
+	        android:maxHeight="20dp"
+	        android:layout_marginRight="5dp"
+	        android:background="@drawable/favor_elipss_holo_light"
+	        android:gravity="center"
+	        android:singleLine="true"
+			android:ellipsize="end"
+	        android:text="0"
+	        android:textSize="7sp" />
+
+	    <TextView
+	        android:id="@+id/tiezi_favor_tips"
+	        android:layout_width="wrap_content"
+	        android:layout_height="fill_parent"
+	        android:gravity="center"
+	        android:text="觉得赞"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	</LinearLayout>
 </LinearLayout>

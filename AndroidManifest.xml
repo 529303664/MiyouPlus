@@ -182,7 +182,7 @@
             android:name=".ui.CreateTieziActivity"
             android:label="@string/title_activity_create_tiezi"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.AppCompat.Light" >
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" >
 
             <!-- 设置创贴的父activity 用于actionbar的home up按钮 -->
             <meta-data
@@ -190,8 +190,8 @@
                 android:value="com.luluandroid.miyouplus.ui.MainActivity" />
         </activity>
         <activity
-            android:name=".EditMyMiboActivity"
-            android:theme="@style/Theme.AppCompat.Light">
+            android:name="com.luluandroid.miyouplus.ui.EditMyMiboActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" android:label="@string/mymibocomment">
         </activity>
         <activity android:name=".ui.MiboDetailActivity"></activity>
     </application>

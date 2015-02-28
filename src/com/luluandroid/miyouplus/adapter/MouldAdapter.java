@@ -54,7 +54,7 @@ public class MouldAdapter extends BaseAdapter {
 		}else{
 			mViewHolder = (ViewHolder)convertView.getTag();
 		}
-		mViewHolder.imageview.setImageResource(mThumbIds[position]);
+		mViewHolder.imageview.setImageDrawable(context.getResources().getDrawable(mThumbIds[position]));
 		return convertView;
 	}
 	

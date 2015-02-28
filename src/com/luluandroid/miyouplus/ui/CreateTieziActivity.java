@@ -37,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -88,9 +89,10 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	private ImageView navigationLfBt, navigationRtBt, imageBackgroud;
 	private EditText myMessageEditext;
 	private TextView emotionText;
+	private CheckBox contactCheckBox,CommentCheckBox;
 	private boolean NvIsOpen, IsAsynctaskOk;// 分别是判断导航是否开启和处理图片的Asynctask是否正在运行
 	private DialogProgress progressDialog;
-	private int currentResId = R.drawable.l_2;//当前选定的图片资源ID
+	private int currentResId = 1;//当前选定的图片资源ID
 	
 	private BmobUserManager userManager;
 
@@ -124,6 +126,8 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		imageBackgroud = (ImageView) findViewById(R.id.create_tiezi_imageview1);
 		myMessageEditext = (EditText) findViewById(R.id.create_tiezi_input_editext);
 		emotionText = (TextView) findViewById(R.id.create_tiezi_emotions);
+		contactCheckBox = (CheckBox)findViewById(R.id.create_tiezi_contact_checkbox);
+		CommentCheckBox = (CheckBox)findViewById(R.id.create_tiezi_comment_checkbox);
 
 		// 引用表情的fragment
 		emotionFragment = (Fragment) this.getSupportFragmentManager()
@@ -196,10 +200,10 @@ public class CreateTieziActivity extends ActionBarActivity implements
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				// TODO Auto-generated method stub
 				if(TextUtils.isEmpty(s)){
-					action_create_tiezi_item.setIcon(R.drawable.ic_action_un_send_now);
+					action_create_tiezi_item.setIcon(R.drawable.ic_action_send_now);
 					action_create_tiezi_item.setEnabled(false);
 				}else{
-					action_create_tiezi_item.setIcon(R.drawable.ic_action_send_now);
+					action_create_tiezi_item.setIcon(R.drawable.ic_action_un_send_now);
 					action_create_tiezi_item.setEnabled(true);
 				}
 			}
@@ -269,7 +273,8 @@ public class CreateTieziActivity extends ActionBarActivity implements
 
 	public void InitActionBar() {
 		actionbar = getSupportActionBar();
-		actionbar.setDisplayHomeAsUpEnabled(true);
+		actionbar.setDisplayShowHomeEnabled(false);
+		actionbar.setDisplayHomeAsUpEnabled(false);
 	}
 
 	public void showProgressDialog(){
@@ -701,8 +706,10 @@ public class CreateTieziActivity extends ActionBarActivity implements
 
 	private Mibos saveMibo() {
 		Mibos mibo = new Mibos(BmobUser.getCurrentUser(this).getUsername(),
-				myMessageEditext.getText().toString(), Integer.valueOf("0"));
+				myMessageEditext.getText().toString(), Integer.valueOf("0"),((User) userManager.getCurrentUser(User.class)).getObjectId());
 		mibo.setMyUser((User) userManager.getCurrentUser(User.class));
+		mibo.setOpentoAll(contactCheckBox.isChecked());
+		mibo.setCommentOk(CommentCheckBox.isChecked());
 		return mibo;
 	}
 

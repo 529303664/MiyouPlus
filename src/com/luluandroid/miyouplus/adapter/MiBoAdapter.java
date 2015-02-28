@@ -15,10 +15,12 @@ import com.luluandroid.miyouplus.bean.Mibos.MessageType;
 import com.luluandroid.miyouplus.config.ChannelCodes;
 import com.luluandroid.miyouplus.config.Conf;
 import com.luluandroid.miyouplus.control.MiboMgr;
+import com.luluandroid.miyouplus.control.MiboMgr.MiboCountListener;
 import com.luluandroid.miyouplus.extra.ShowToast;
 import com.luluandroid.miyouplus.ui.ChatActivity;
 import com.luluandroid.miyouplus.ui.MainActivity;
 import com.luluandroid.miyouplus.ui.MiboDetailActivity;
+import com.luluandroid.miyouplus.ui.fragment.FragmentImageMould;
 import com.luluandroid.miyouplus.util.ImageLoadOptions;
 import com.luluandroid.miyouplus.view.xlist.XListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -66,6 +68,8 @@ public class MiBoAdapter extends BaseAdapter {
 				case ChannelCodes.UPDATEVIEW_FAVOR_BG:
 					handleFavorBGMsg(msg);
 					break;
+				case ChannelCodes.UPDATEVIEW_Comment_BG:
+					handleCommentBGMsg(msg);
 				default:
 					break;
 			}
@@ -82,9 +86,30 @@ public class MiBoAdapter extends BaseAdapter {
 			ViewHolder holder = (ViewHolder)(tiezi_ListView.getChildAt(index-firstVisible+1).getTag());
 			if(holder != null){
 				changeZanPic(holder,isAddedZan,mibo);
+				readFavorList(holder,mibo.getZanMan());
 			}else{
 				Log.i("MiboAdapter", "tiezi_ListView.getChildAt(index-firstVisible).getTag() 为空！");
 			}
+	}
+	
+	private void handleCommentBGMsg(Message msg){
+		int index = msg.arg1;
+		int count = msg.arg2;
+		int firstVisible = tiezi_ListView.getFirstVisiblePosition();
+		Mibos mibo = mMibos.get(index);
+		mibo.setCommentCount(count);
+		View updateView = tiezi_ListView.getChildAt(index-firstVisible+1);
+		if(null != updateView){
+			ViewHolder holder = (ViewHolder)(updateView.getTag());
+			if(holder != null){
+				holder.mi_comment.setText(String.valueOf(count));
+			}else{
+				Log.i("MiboAdapter", "tiezi_ListView.getChildAt(index-firstVisible).getTag() 为空！");
+			}
+		}else{
+			Log.i("MiboAdapter", "tiezi_ListView.getChildAt(index-firstVisible) 为空！");
+		}
+			
 	}
 	
 	public MiBoAdapter(Context context,List<Mibos>mMibos,MiboMgr miboMgr){
@@ -113,6 +138,10 @@ public class MiBoAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		// TODO Auto-generated method stub
 		return position;
+	}
+	
+	public void setItem(int position,Mibos mibo){
+		mMibos.set(position, mibo);
 	}
 	
 	public void addItem(Mibos mibo){
@@ -150,20 +179,36 @@ public class MiBoAdapter extends BaseAdapter {
 			viewHolder.favor = (TextView)convertView.findViewById(R.id.tiezi_bottom_favor);
 			viewHolder.mi_contact = (TextView)convertView.findViewById(R.id.tiezi_bottom_mi_contact);
 			viewHolder.mi_comment = (TextView)convertView.findViewById(R.id.tiezi_bottom_mi_comment);
+			viewHolder.tiezi_favor_img_count = (TextView)convertView.findViewById(R.id.tiezi_favor_img_count);
 			
 			viewHolder.bgImageView.setScaleType(ScaleType.CENTER_CROP);
+			
+			viewHolder.imageHead[0] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img1);
+			viewHolder.imageHead[1] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img2);
+			viewHolder.imageHead[2] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img3);
+			viewHolder.imageHead[3] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img4);
+			viewHolder.imageHead[4] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img5);
+			viewHolder.imageHead[5] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img6);
+			viewHolder.imageHead[6] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img7);
+			viewHolder.imageHead[7] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img8);
+			viewHolder.imageHead[8] = (ImageView)convertView.findViewById(R.id.tiezi_favor_img9);
+			
 			convertView.setTag(viewHolder);
 		}else{
 			viewHolder = (ViewHolder)convertView.getTag();
 		}
-//		viewHolder.headUserName.setText(((Mibos)mMibos.get(position)).getHeadUserName());
-//		viewHolder.headUserName.setText("某秘友");
 		viewHolder.ConTextView.setText(((Mibos)mMibos.get(position)).getContent());
 		viewHolder.favor.setText(((Mibos)mMibos.get(position)).getFavorCount().toString());
 		viewHolder.tiezi_time.setText(((Mibos)mMibos.get(position)).getCreatedAt());
 		viewHolder.mi_comment.setText(((Mibos)mMibos.get(position)).getCommentCount().toString());
 		if(((Mibos)mMibos.get(position)).getType()== MessageType.TEXT){
-			viewHolder.bgImageView.setImageResource(((Mibos)mMibos.get(position)).getPicResourceId());
+			viewHolder.bgImageView.setImageDrawable(context.getResources().getDrawable(FragmentImageMould.mBackGroundIds[((Mibos)mMibos.get(position)).getPicResourceId()]));
+			if(((Mibos)mMibos.get(position)).getPicResourceId() == 0){
+				viewHolder.ConTextView.setTextColor(context.getResources().getColor(R.color.black));
+			}
+			if(((Mibos)mMibos.get(position)).getPicResourceId() == 1){
+				viewHolder.ConTextView.setTextColor(context.getResources().getColor(R.color.white));
+			}
 		}else{
 			ImageLoader.getInstance().displayImage(((Mibos)mMibos.get(position)).getPic().getFileUrl(context), viewHolder.bgImageView, ImageLoadOptions.getOptions());
 		}
@@ -176,6 +221,29 @@ public class MiBoAdapter extends BaseAdapter {
 				break;
 			}
 		}
+		
+		readFavorList(viewHolder,((Mibos)mMibos.get(position)).getZanMan());
+		
+		viewHolder.mi_contact.setClickable(((Mibos)mMibos.get(position)).isOpentoAll());
+		viewHolder.mi_comment.setClickable(((Mibos)mMibos.get(position)).isCommentOk());
+		
+		miboMgr.findCommentCount(mMibos.get(position), new MiboCountListener() {
+			
+			@Override
+			public void onSucess(int count) {
+				// TODO Auto-generated method stub
+				Message message = mHandler.obtainMessage(ChannelCodes.UPDATEVIEW_Comment_BG,position,count);
+				mHandler.sendMessage(message);
+			}
+			
+			@Override
+			public void onFailure(int code, String error) {
+				// TODO Auto-generated method stub
+				ShowToast.showShortToast(context, "第"+position+"个更新失败：\n"+
+				"code:"+code+" error:"+error);
+			}
+		});
+		
 		
 		viewHolder.mi_contact.setOnClickListener(new OnClickListener() {
 			
@@ -210,10 +278,50 @@ public class MiBoAdapter extends BaseAdapter {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				ShowToast.showShortToast(context, "第"+position+"图片被点击");
+//				ShowToast.showShortToast(context, "第"+position+"图片被点击");
+				CLickImage(position);
+			
 			}
 		});
 		return convertView;
+	}
+	
+	private void readFavorList(ViewHolder viewHolder,List<String> favorList){
+		List<String>favorHeadList = favorList;
+		viewHolder.tiezi_favor_img_count.setText(String.valueOf(favorHeadList.size()));
+		showFavorImages(viewHolder,favorHeadList.size());
+	}
+	
+	private void showFavorImages(ViewHolder viewHolder,int count){
+		if(count>9){
+			showOrhideAllFavorImage(viewHolder,true);
+			return;
+		}
+		showOrhideAllFavorImage(viewHolder,false);
+		for(int i=0;i<count;i++){
+			viewHolder.imageHead[i].setVisibility(View.VISIBLE);
+		}
+	}
+	
+	private void showOrhideAllFavorImage(ViewHolder viewHolder,boolean flag){
+		if(flag){
+			for(int i = 0;i<viewHolder.imageHead.length;i++){
+				viewHolder.imageHead[i].setVisibility(View.VISIBLE);
+			}
+		}else{
+			for(int i = 0;i<viewHolder.imageHead.length;i++){
+				viewHolder.imageHead[i].setVisibility(View.GONE);
+			}
+		}
+	}
+	
+	private void CLickImage(int position){
+		Intent intent = new Intent(context,MiboDetailActivity.class);
+		Bundle bundle = new Bundle();
+		bundle.putInt(Conf.MIBO_SHOW_keyString, ChannelCodes.SHOW_SELECTED_MIBO);
+		bundle.putSerializable(Conf.MIBO_Serealizable_key, mMibos.get(position));
+		intent.putExtras(bundle);
+		((MainActivity)context).startAnimActivity(intent);
 	}
 	
 	private void ClickContact(int position){
@@ -338,10 +446,11 @@ public class MiBoAdapter extends BaseAdapter {
 	
 	public class ViewHolder{
 		public ImageView mImageView;
-		public TextView headUserName,tiezi_time;
+		public TextView headUserName,tiezi_time,tiezi_favor_img_count;
 		public ImageView bgImageView;
 		public EmojiconTextView ConTextView;
 		public TextView favor,mi_contact,mi_comment;
+		public ImageView[] imageHead = new ImageView[9];
 	}
 	
 }

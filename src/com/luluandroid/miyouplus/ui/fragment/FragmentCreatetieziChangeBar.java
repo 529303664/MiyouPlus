@@ -30,7 +30,7 @@ public class FragmentCreatetieziChangeBar extends Fragment {
 	private TextView tips, returnText, brightnessText;// 分别是提示，返回按钮，亮度按钮，模糊按钮
 	private CheckBox mitnessText;
 	private int brightnessProgress = 0;
-	private Bitmap tempBitmap,mitTempBitmap;//分别是未经模糊处理，经过模糊处理的Bitmap
+	private Bitmap tempBitmap,tempBitmap2,mitTempBitmap;//分别是未经模糊处理，经过模糊处理的Bitmap
 
 	public FragmentCreatetieziChangeBar(Context context) {
 		super();
@@ -81,7 +81,7 @@ public class FragmentCreatetieziChangeBar extends Fragment {
 		// TODO Auto-generated method stub
 		super.onHiddenChanged(hidden);
 		if(hidden == false){
-//			restoreTempBitmap();
+			restoreTempBitmap();
 		}
 	}
 
@@ -98,13 +98,21 @@ public class FragmentCreatetieziChangeBar extends Fragment {
 	}
 	
 	private void clearTempBitmap(){
+		Log.i("ChangeBar", "调用了clearTempBitmap方法");
 		if(tempBitmap != null && !tempBitmap.isRecycled()){
 			tempBitmap.recycle();
 			tempBitmap = null;
+			Log.i("ChangeBar", "清除tempBitmap");
+		}
+		if(tempBitmap2 != null && !tempBitmap2.isRecycled()){
+			tempBitmap2.recycle();
+			tempBitmap2 = null;
+			Log.i("ChangeBar", "清除tempBitmap2");
 		}
 		if(mitTempBitmap != null && !mitTempBitmap.isRecycled()){
 			mitTempBitmap.recycle();
 			mitTempBitmap = null;
+			Log.i("ChangeBar", "清除mitTempBitmap");
 		}
 		System.gc();
 	}
@@ -124,11 +132,12 @@ public class FragmentCreatetieziChangeBar extends Fragment {
 		//tempDrawable 暂时保存背景的图片以便进行亮度更改
 		((ImageView) getActivity().findViewById(
 				R.id.create_tiezi_imageview1)).setDrawingCacheEnabled(true);
-		tempBitmap = ((ImageView) getActivity().findViewById(
-				R.id.create_tiezi_imageview1)).getDrawingCache();
-		/*((ImageView) getActivity().findViewById(
-				R.id.create_tiezi_imageview1)).setDrawingCacheEnabled(false);*/
-		System.out.println("initview tempBitmap:"+tempBitmap);
+		tempBitmap = Bitmap.createBitmap(((ImageView) getActivity().findViewById(
+				R.id.create_tiezi_imageview1)).getDrawingCache());
+		tempBitmap2 = Bitmap.createBitmap(tempBitmap);
+		((ImageView) getActivity().findViewById(
+				R.id.create_tiezi_imageview1)).setDrawingCacheEnabled(false);
+		System.out.println("initview tempBitmap:"+tempBitmap+" tempBitmap2:"+tempBitmap2);
 		brightnessText.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -146,26 +155,27 @@ public class FragmentCreatetieziChangeBar extends Fragment {
 				// TODO Auto-generated method stub
 				if (mitnessText.isChecked()) {
 					((CreateTieziActivity)getActivity()).setPicchange(true);
-					((ImageView) getActivity().findViewById(
+/*					((ImageView) getActivity().findViewById(
 							R.id.create_tiezi_imageview1)).setDrawingCacheEnabled(true);
-					tempBitmap = ((ImageView) getActivity().findViewById(
-							R.id.create_tiezi_imageview1)).getDrawingCache();
+							((ImageView) getActivity().findViewById(
+							R.id.create_tiezi_imageview1)).getDrawingCache();*/
 					/*((ImageView) getActivity().findViewById(
 							R.id.create_tiezi_imageview1)).setDrawingCacheEnabled(false);*/
-					System.out.println("onCheckedChanged------>>tempBitmap:"+tempBitmap);
 					mitTempBitmap = ImageManager.blur(
-							tempBitmap,
+							tempBitmap2,
 							((ImageView) getActivity().findViewById(
 									R.id.create_tiezi_imageview1)),
 							getActivity(), false);
-					((ImageView) getActivity().findViewById(
-							R.id.create_tiezi_imageview1))
-							.setImageBitmap(mitTempBitmap);
+					Log.i("ChangeBar", "tempBitmap2:"+tempBitmap2+" mitTempBitmap:"+mitTempBitmap);
 				} else {
-					((ImageView) getActivity().findViewById(
-							R.id.create_tiezi_imageview1))
-							.setImageBitmap(tempBitmap);
+					mitTempBitmap = tempBitmap2;
+					
 				}
+				((ImageView) getActivity().findViewById(
+						R.id.create_tiezi_imageview1)).setDrawingCacheEnabled(false);
+				((ImageView) getActivity().findViewById(
+						R.id.create_tiezi_imageview1))
+						.setImageBitmap(mitTempBitmap);
 			}
 		});
 		returnText.setOnClickListener(new OnClickListener() {
@@ -196,17 +206,15 @@ public class FragmentCreatetieziChangeBar extends Fragment {
 					boolean fromUser) {
 				// TODO Auto-generated method stub
 				((CreateTieziActivity)getActivity()).setPicchange(true);
-				ImageView tempImageView = ((ImageView) getActivity()
-						.findViewById(R.id.create_tiezi_imageview1));
-				Bitmap tempBitmap2;
-				System.out.println("onProgressChanged----->>tempBitmap:"+tempBitmap);
 				if(mitnessText.isChecked()){
 					tempBitmap2 =  ImageManager.BrightnessChange(mitTempBitmap, progress);
 				}else{
 					tempBitmap2 =  ImageManager.BrightnessChange(tempBitmap, progress);
 				}
-				tempImageView.setImageBitmap(null);
-				tempImageView.setImageBitmap(tempBitmap2);
+				((ImageView) getActivity()
+						.findViewById(R.id.create_tiezi_imageview1)).setDrawingCacheEnabled(false);
+				((ImageView) getActivity()
+						.findViewById(R.id.create_tiezi_imageview1)).setImageBitmap(tempBitmap2);
 //				tempImageView.setBackgroundDrawable(ImageTools.bitmapToDrawable(tempBitmap2));
 //				tempImageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				mSeekBar.setProgress(progress);

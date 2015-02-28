@@ -17,10 +17,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import cn.bmob.im.BmobUserManager;
 
-import com.luluandroid.miyouplus.EditMyMiboActivity;
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.main.CustomApplcation;
 import com.luluandroid.miyouplus.ui.BlackListActivity;
+import com.luluandroid.miyouplus.ui.EditMyMiboActivity;
 import com.luluandroid.miyouplus.ui.FragmentBase;
 import com.luluandroid.miyouplus.ui.LoginActivity;
 import com.luluandroid.miyouplus.ui.SetMyInfoActivity;

@@ -86,6 +86,7 @@
     <string name="delete">删除</string>
     <string name="mymibo">我的秘博</string>
     <string name="mycomment">我的评论</string>
+    <string name="mymibocomment">我的秘博/评论</string>
     <string name="loadingtip">正在加载,请稍后……</string>
     <string name="withoutdata">暂无数据</string>
     <string name="florcount">几楼</string>

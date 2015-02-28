@@ -19,19 +19,20 @@ public class Mibos extends BmobObject implements Serializable {
 	 */
 	private static final long serialVersionUID = 1400147433532249266L;
 	private User myUser;//关联的秘博用户
-	private String headUserName="";//*用户名
-	private String content = "";//*秘博的内容
-	private Integer favorCount = 0;//*秘博的赞数
-	private Integer CommentCount = 0;//*秘博的评论数
-	private boolean isOpentoAll = true;//判断秘博是否对所有用户可见
-	private boolean friendCommentOnly = true;//判断秘博是否只让朋友阅读
-	private MessageType type = MessageType.TEXT;//判断秘博是否包含图片, 默认不包含图片
-	private int parentId = -1;//秘博的父ObjectId（Bmob）-1 代表为根贴
-	private BmobFile pic = null;//秘博的网络图片对象
-	private String localPicName = null;//如果秘博有图片，则为该秘博的图片名称，否则为空
+	private String headUserName;//*用户名
+	private String content;//*秘博的内容
+	private Integer favorCount;//*秘博的赞数
+	private String fromUserId;//发送秘博的用户ObjectId
+	private Integer CommentCount;//*秘博的评论数
+	private boolean isOpentoAll;//判断秘博是否对可以聊天
+	private boolean isCommentOk;//判断秘博是否可以评论
+	private MessageType type;//判断秘博是否包含图片, 默认不包含图片
+	private int parentId;//秘博的父ObjectId（Bmob）-1 代表为根贴
+	private BmobFile pic;//秘博的网络图片对象
+	private String localPicName;//如果秘博有图片，则为该秘博的图片名称，否则为空
 	private BmobRelation Comments;
-	private List<String> zanMan = new ArrayList<String>();//点赞的人的ObjectId
-	private int PicResourceId = R.drawable.l_2;//默认用户图片使用app的ID为l_2图片，与localPicName不共存，则该ID还是存在，否则为-1
+	private List<String> zanMan;//点赞的人的ObjectId
+	private int PicResourceId;//默认用户图片使用app的ID为l_2图片，与localPicName不共存，则该ID还是存在，否则为-1
 
 	public enum MessageType {
 		TEXT, TEXTANDPICTURE;
@@ -41,11 +42,21 @@ public class Mibos extends BmobObject implements Serializable {
 	}
 
 	// 默认的用的构造
-	public Mibos(String headUserName,String content, Integer favorCount) {
+	public Mibos(String headUserName,String content, Integer favorCount,String fromUserId) {
 		super();
 		this.headUserName = headUserName;
 		this.content = content;
 		this.favorCount = favorCount;
+		this.fromUserId = fromUserId;
+		this.CommentCount = 0;
+		this.isOpentoAll = true;
+		this.isCommentOk = true;
+		this.type = MessageType.TEXT;
+		this.parentId = -1;
+		this.pic = null;
+		this.localPicName = null;
+		this.zanMan = new ArrayList<String>();
+		this.PicResourceId = 1;
 		//设置bmob服务器上的表格名称
 	}
 	
@@ -55,6 +66,14 @@ public class Mibos extends BmobObject implements Serializable {
 
 	public void setMyUser(User myUser) {
 		this.myUser = myUser;
+	}
+
+	public String getFromUserId() {
+		return fromUserId;
+	}
+
+	public void setFromUserId(String fromUserId) {
+		this.fromUserId = fromUserId;
 	}
 
 	/**
@@ -143,16 +162,16 @@ public class Mibos extends BmobObject implements Serializable {
 	/**
 	 * @return the friendCommentOnly
 	 */
-	public boolean isFriendCommentOnly() {
-		return friendCommentOnly;
+	public boolean isCommentOk() {
+		return isCommentOk;
 	}
 
 	/**
 	 * @param friendCommentOnly
 	 *            the friendCommentOnly to set
 	 */
-	public void setFriendCommentOnly(boolean friendCommentOnly) {
-		this.friendCommentOnly = friendCommentOnly;
+	public void setCommentOk(boolean friendCommentOnly) {
+		this.isCommentOk = friendCommentOnly;
 	}
 
 	/**

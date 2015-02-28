@@ -29,7 +29,7 @@ public class CheckMyComAdapter extends BaseListAdapter<MiboComment> {
 	public View bindView(int position, View convertView, ViewGroup parent) {
 		// TODO Auto-generated method stub
 		if(convertView == null){
-			mInflater.inflate(R.layout.my_bmob_list_item, null);
+			convertView = mInflater.inflate(R.layout.my_bmob_list_item, null);
 		}
 		CheckBox checkBox = ViewHolder.get(convertView, R.id.checkBox1);
 		TextView timeTextView = ViewHolder.get(convertView, R.id.createtime);

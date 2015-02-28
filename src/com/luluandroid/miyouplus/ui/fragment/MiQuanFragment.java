@@ -37,8 +37,10 @@ import com.luluandroid.miyouplus.control.MiboMgr;
 import com.luluandroid.miyouplus.control.MiboMgr.FindMiboListener;
 import com.luluandroid.miyouplus.extra.ShowToast;
 import com.luluandroid.miyouplus.ui.CreateTieziActivity;
+import com.luluandroid.miyouplus.ui.EditMyMiboActivity;
 import com.luluandroid.miyouplus.ui.FragmentBase;
 import com.luluandroid.miyouplus.ui.LoginActivity;
+import com.luluandroid.miyouplus.ui.MainActivity;
 import com.luluandroid.miyouplus.ui.PopMenu;
 import com.luluandroid.miyouplus.util.TimeUtil;
 import com.luluandroid.miyouplus.view.xlist.XListView;
@@ -49,14 +51,16 @@ import com.rockerhieu.emojicon.emoji.Emojicon;
 
 public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 
+	private int curPage = 0;
 	private PopMenu popMenu;
 	private TextView title;
 	private XListView mListView;
 	private MiBoAdapter miBoAdapter;
 	private FragmentAllMiboReceiver mFragmentAllMiboReceiver;
 	private LocalBroadcastManager lbm;
-	private List<Mibos>Mibos;
+	private List<Mibos> Mibos;
 	private MiboMgr miboMgr;
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -73,40 +77,40 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	}
 
 	public void checkLogin() {
-		BmobUserManager userManager = BmobUserManager.getInstance(getActivity());
+		BmobUserManager userManager = BmobUserManager
+				.getInstance(getActivity());
 		if (userManager.getCurrentUser() == null) {
 			ShowToast("您的账号已在其他设备上登录!");
 			startActivity(new Intent(getActivity(), LoginActivity.class));
 			getActivity().finish();
 		}
 	}
-	
-	
-	
-	/** 隐藏软键盘
-	  * hideSoftInputView
-	  * @Title: hideSoftInputView
-	  * @Description: TODO
-	  * @param  
-	  * @return void
-	  * @throws
-	  */
+
+	/**
+	 * 隐藏软键盘 hideSoftInputView
+	 * 
+	 * @Title: hideSoftInputView
+	 * @Description: TODO
+	 * @param
+	 * @return void
+	 * @throws
+	 */
 	public void hideSoftInputView() {
-		InputMethodManager manager = ((InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE));
+		InputMethodManager manager = ((InputMethodManager) getActivity()
+				.getSystemService(Activity.INPUT_METHOD_SERVICE));
 		if (getActivity().getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
 			if (getActivity().getCurrentFocus() != null)
-				manager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+				manager.hideSoftInputFromWindow(getActivity().getCurrentFocus()
+						.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 		}
 	}
-	
+
 	@Override
 	public void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
 		initBroadcastReceiver();
 	}
-	
-	
 
 	@Override
 	public void onResume() {
@@ -122,8 +126,6 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		super.onStop();
 	}
 
-	
-	
 	// 创建handler 用于控制UI
 	private Handler mHandler = new Handler() {
 
@@ -131,19 +133,20 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		public void handleMessage(Message msg) {
 			// TODO Auto-generated method stub
 			super.handleMessage(msg);
-			switch(msg.what){
-				case ChannelCodes.MIBO_Find_SUCCESS:
-					ShowToast((String)msg.obj);
-					AfterLoaded();
-					break;
-				case ChannelCodes.MIBO_Find_FAILURE:
-					ShowToast((String)msg.obj);
-					AfterLoaded();
-					break;
-				default:
-					break;
+			switch (msg.what) {
+			case ChannelCodes.MIBO_Find_SUCCESS:
+				ShowToast((String) msg.obj);
+				((MainActivity)getActivity()).setMiquanTipsVisble(false);
+				AfterLoaded();
+				break;
+			case ChannelCodes.MIBO_Find_FAILURE:
+				ShowToast((String) msg.obj);
+				AfterLoaded();
+				break;
+			default:
+				break;
 			}
-			
+
 		}
 
 	};
@@ -151,7 +154,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	private void init() {
 		Mibos = new ArrayList<Mibos>();
 		miboMgr = new MiboMgr(getActivity());
-		
+
 		initView();
 	}
 
@@ -188,8 +191,6 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		initHeadLayout();
 		initAdpter();
 	}
-	
-	
 
 	private void initXListView() {
 		mListView = (XListView) getActivity().findViewById(
@@ -205,7 +206,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 
 	private void initPopMenu() {
 		popMenu = new PopMenu(getActivity());
-		popMenu.addItems(new String[] { "发帖", "添加朋友", "我的评论" });
+		popMenu.addItems(new String[] { "发帖", "我的秘博", "我的评论" });
 		popMenu.setOnItemClickListener(new com.luluandroid.miyouplus.ui.PopMenu.OnItemClickListener() {
 
 			@Override
@@ -215,53 +216,58 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 				case 0:
 					linkToNewMibo();
 					break;
+				case 1:
+					linkToMyMiboOrComment(true);
+					break;
+				case 2:
+					linkToMyMiboOrComment(false);
 				default:
 					break;
 				}
-				Toast.makeText(getActivity(), "点击第" + index + "个popmenuitem",
-						Toast.LENGTH_SHORT).show();
+				/*
+				 * Toast.makeText(getActivity(), "点击第" + index + "个popmenuitem",
+				 * Toast.LENGTH_SHORT).show();
+				 */
 			}
 		});
 	}
 
 	// 初始化操作查询秘博
 	private void getItems() {
-		miboMgr.findinitialMibo(new FindMiboListener() {
-			
+
+		miboMgr.findNetWorkMibo(curPage, new FindMiboListener() {
+
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
-				// TODO Auto-generated method stub\
-				for(Mibos mibo : mibosList){
-					Mibos.add(mibo);
-				}
-				String successString = "初始化秘博查询成功";
-				Message message = mHandler.obtainMessage(ChannelCodes.MIBO_Find_SUCCESS, successString);
+				// TODO Auto-generated method stub
+				curPage++;
+				miBoAdapter.clear();
+				miBoAdapter.addAll(mibosList);
+				String successString = "查找了" + mibosList.size() + "条新秘博";
+				Message message = mHandler.obtainMessage(
+						ChannelCodes.MIBO_Find_SUCCESS, successString);
 				mHandler.sendMessage(message);
 			}
-			
+
 			@Override
 			public void onFailure(int code, String error) {
 				// TODO Auto-generated method stub
-				String errorString = "初始化秘博查询失败："+"code:"+code+" "+"error："+error;
-				Message message = mHandler.obtainMessage(ChannelCodes.MIBO_Find_FAILURE, errorString);
+				String successString = "查找了最新秘博失败:" + "code:" + code + "error:"
+						+ error;
+				Message message = mHandler.obtainMessage(
+						ChannelCodes.MIBO_Find_SUCCESS, successString);
 				mHandler.sendMessage(message);
 			}
 		});
-		/*List<Mibos> mibos = new ArrayList<Mibos>();
-		Mibos mibo;
-		for (int i = 0; i < 10; i++) {
-			mibo = new Mibos("哇哈哈", "从前有" + i + "个小朋友，他很乖" + "\ue32d", i);
-			mibos.add(mibo);
-		}
-		return mibos;*/
+	
 	}
 
 	private void initAdpter() {
 		getItems();
-		miBoAdapter = new MiBoAdapter(getActivity(), Mibos,miboMgr);
+		miBoAdapter = new MiBoAdapter(getActivity(), Mibos, miboMgr);
 		mListView.setAdapter(miBoAdapter);
 	}
-	
+
 	private void initBroadcastReceiver() {
 		if (lbm == null)
 			lbm = LocalBroadcastManager.getInstance(getActivity());
@@ -272,10 +278,18 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		lbm.registerReceiver(mFragmentAllMiboReceiver, filter);
 
 	}
-	
+
 	private void stopBroadcastReceiver() {
 		if (lbm != null)
 			lbm.unregisterReceiver(mFragmentAllMiboReceiver);
+	}
+
+	private void linkToMyMiboOrComment(boolean miboOrComment) {
+		Intent intent = new Intent(getActivity(), EditMyMiboActivity.class);
+		Bundle bundle = new Bundle();
+		bundle.putBoolean("isMiboOrComment", miboOrComment);
+		intent.putExtras(bundle);
+		startActivity(intent);
 	}
 
 	private void linkToNewMibo() {
@@ -337,66 +351,68 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		// 测试
 		loadLatestMibo();
 	}
-	
-	private boolean isAddOk(boolean NewOrOld,Mibos srcmibo,Mibos newmibo){
-		if(NewOrOld){
-			long srcTime = TimeUtil.stringToLong(srcmibo.getCreatedAt(), TimeUtil.FORMAT_DATE_TIME2);
-			long newTime = TimeUtil.stringToLong(newmibo.getCreatedAt(), TimeUtil.FORMAT_DATE_TIME2);
-			return srcTime < newTime;
-		}else{
-			long srcTime = TimeUtil.stringToLong(srcmibo.getCreatedAt(), TimeUtil.FORMAT_DATE_TIME2);
-			long newTime = TimeUtil.stringToLong(newmibo.getCreatedAt(), TimeUtil.FORMAT_DATE_TIME2);
-			return srcTime > newTime;
-		}
-	}
-	
-	private void loadLatestMibo(){
-		miboMgr.findCacheOrNetWorkMibo(false, true, new FindMiboListener() {
-			
+
+	private void loadLatestMibo() {
+		curPage = 0;
+		miboMgr.findNetWorkMibo(curPage, new FindMiboListener() {
+
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
 				// TODO Auto-generated method stub
-				miBoAdapter.clear();
-				miBoAdapter.addAll(mibosList);
-				String successString = "查找了"+mibosList.size()+"条新秘博";
-				Message message = mHandler.obtainMessage(ChannelCodes.MIBO_Find_SUCCESS, successString);
+				String successString;
+				if(mibosList.size()>0){
+					miBoAdapter.clear();
+					miBoAdapter.addAll(mibosList);
+					curPage = 1;
+					successString = "查找了" + mibosList.size() + "条新秘博";
+				}else{
+					successString = "沒有数据了";
+				}
+				Message message = mHandler.obtainMessage(
+						ChannelCodes.MIBO_Find_SUCCESS, successString);
 				mHandler.sendMessage(message);
+				
 			}
-			
+
 			@Override
 			public void onFailure(int code, String error) {
 				// TODO Auto-generated method stub
-				String successString = "查找了最新秘博失败:"+"code:"+code+"error:"+error;
-				Message message = mHandler.obtainMessage(ChannelCodes.MIBO_Find_SUCCESS, successString);
+				String successString = "查找了最新秘博失败:" + "code:" + code + "error:"
+						+ error;
+				Message message = mHandler.obtainMessage(
+						ChannelCodes.MIBO_Find_SUCCESS, successString);
 				mHandler.sendMessage(message);
 			}
 		});
 	}
-	
-	private void loadOldMibo(){
-			miboMgr.findCacheOrNetWorkMibo(false, false, new FindMiboListener() {
-			
+
+	private void loadOldMibo() {
+		miboMgr.findNetWorkMibo(curPage, new FindMiboListener() {
+
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
 				// TODO Auto-generated method stub
-				int count = 0;
-				Mibos srcMibo = Mibos.get(Mibos.size()-1);
-				for(Mibos mibo : mibosList){
-					if(isAddOk(false,srcMibo,mibo)){
-						miBoAdapter.addItem(mibo);
-						count++;
-					}
+				String successString;
+				if(mibosList.size()>0){
+					miBoAdapter.addAll(mibosList);
+					curPage++;
+					successString = "加载了" + mibosList.size() + "条秘博";
+				}else{
+					successString = "没有更多数据了";
 				}
-				String successString = "新增了"+count+"条旧秘博";
-				Message message = mHandler.obtainMessage(ChannelCodes.MIBO_Find_SUCCESS, successString);
+				
+				Message message = mHandler.obtainMessage(
+						ChannelCodes.MIBO_Find_SUCCESS, successString);
 				mHandler.sendMessage(message);
 			}
-			
+
 			@Override
 			public void onFailure(int code, String error) {
 				// TODO Auto-generated method stub
-				String successString = "查找了最新秘博失败:"+"code:"+code+"error:"+error;
-				Message message = mHandler.obtainMessage(ChannelCodes.MIBO_Find_SUCCESS, successString);
+				String successString = "查找了最新秘博失败:" + "code:" + code + "error:"
+						+ error;
+				Message message = mHandler.obtainMessage(
+						ChannelCodes.MIBO_Find_SUCCESS, successString);
 				mHandler.sendMessage(message);
 			}
 		});
@@ -408,6 +424,5 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		// 测试
 		loadOldMibo();
 	}
-
 
 }

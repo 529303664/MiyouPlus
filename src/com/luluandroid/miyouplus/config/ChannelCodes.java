@@ -1,12 +1,12 @@
 package com.luluandroid.miyouplus.config;
 
 public class ChannelCodes {
-
+	public final static int DIALOG_SHOW = 0;
+	public final static int DIALOG_DISMISS = 1;
+	public final static int ALL_DOWN = 2;
 	public final static int CREATE_TIEZI = 100;
 	public final static int CREATE_TIEZI_SUCCESS = 200;
 	public final static int CREATE_TIEZI_FAIL = 201;
-	public final static int DIALOG_SHOW = 0;
-	public final static int DIALOG_DISMISS = 1;
 	public final static int MIBO_Find_SUCCESS = 301;
 	public final static int MIBO_Find_FAILURE = 302;
 	public final static int UPDATEVIEW_FAVOR_BG = 401;

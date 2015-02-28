@@ -1,21 +1,25 @@
-package com.luluandroid.miyouplus;
+package com.luluandroid.miyouplus.ui;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.bmob.im.BmobUserManager;
 
+import com.luluandroid.miyouplus.R;
+import com.luluandroid.miyouplus.R.id;
+import com.luluandroid.miyouplus.R.layout;
+import com.luluandroid.miyouplus.R.menu;
 import com.luluandroid.miyouplus.adapter.CheckMyComAdapter;
 import com.luluandroid.miyouplus.adapter.CheckMyMiboAdapter;
 import com.luluandroid.miyouplus.bean.MiboComment;
 import com.luluandroid.miyouplus.bean.Mibos;
+import com.luluandroid.miyouplus.bean.User;
 import com.luluandroid.miyouplus.config.ChannelCodes;
 import com.luluandroid.miyouplus.control.MiboMgr;
 import com.luluandroid.miyouplus.control.MiboMgr.DeleteMiboListener;
 import com.luluandroid.miyouplus.control.MiboMgr.FindAllCommentListener;
 import com.luluandroid.miyouplus.control.MiboMgr.FindMiboListener;
 import com.luluandroid.miyouplus.extra.ShowToast;
-import com.luluandroid.miyouplus.ui.LoginActivity;
 import com.luluandroid.miyouplus.view.xlist.XListView;
 import com.luluandroid.miyouplus.view.xlist.XListView.IXListViewListener;
 
@@ -39,6 +43,8 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class EditMyMiboActivity extends ActionBarActivity implements IXListViewListener,OnItemClickListener{
 
+	private int curPage = 0;
+	
 	private String LogTag = "EditMyMiboActivity";
 	private boolean isMiboOrComment;
 	private boolean selectAllFlag = false;
@@ -52,6 +58,7 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	private List<MiboComment> commentList = new ArrayList<MiboComment>();
 	private List<Integer> SelectPositionList = new ArrayList<Integer>();
 	private MiboMgr miboMgr;
+	private BmobUserManager userManager;
 	
 	private Handler mHandler = new Handler(){
 
@@ -110,6 +117,7 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 
 	private void init(){
 		miboMgr = new MiboMgr(this);
+		userManager = BmobUserManager.getInstance(this);
 		initView();
 	}
 
@@ -127,7 +135,7 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	private void initXListView(){
 		mListView = (XListView) findViewById(R.id.editmymibo_listview);
 		// 首先不允许加载更多
-		mListView.setPullLoadEnable(false);
+		mListView.setPullLoadEnable(true);
 		// 不允许下拉
 		mListView.setPullRefreshEnable(false);
 		// 设置监听器
@@ -155,8 +163,8 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	private void initActionbar(){
 		actionbar = getSupportActionBar();
 //		actionbar.setDisplayShowTitleEnabled(false);
-		actionbar.setDisplayShowHomeEnabled(true);
-		actionbar.setDisplayHomeAsUpEnabled(true);
+		actionbar.setDisplayShowHomeEnabled(false);
+		actionbar.setDisplayHomeAsUpEnabled(false);
 	}
 	
 	/**
@@ -246,47 +254,61 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	
 	private void findata(){
 		if(isMiboOrComment){
-			miboMgr.findMyMibo(new FindMiboListener() {
+			miboMgr.findMyMibo((User)userManager.getCurrentUser(User.class),curPage,new FindMiboListener() {
 				
 				@Override
 				public void onSuccess(List<Mibos> mibosList) {
 					// TODO Auto-generated method stub
-					refreshPull();
-					loadingTips.setVisibility(View.GONE);
-					checkMyMiboAdapter.removeAll();
-					checkMyMiboAdapter.addAll(mibosList);
-					mListView.setVisibility(View.VISIBLE);
+					if(mibosList.size()>0){
+						checkMyMiboAdapter.addAll(mibosList);
+						curPage++;
+						loadingTips.setVisibility(View.GONE);
+						mListView.setVisibility(View.VISIBLE);
+						ShowToast.showShortToast(EditMyMiboActivity.this, "加载秘博成功");
+					}else{
+						ShowToast.showShortToast(EditMyMiboActivity.this, "没有更多数据了");
+					}
+					refreshLoad();
+					
 				}
 				
 				@Override
 				public void onFailure(int code, String error) {
 					// TODO Auto-generated method stub
-					refreshPull();
 					mListView.setVisibility(View.GONE);
 					loadingTips.setText("加载失败："+"code："+code+"\nerror："+error);
 					loadingTips.setVisibility(View.VISIBLE);
+					refreshLoad();
 				}
 			});
 		}else{
-			miboMgr.findMyComments(new FindAllCommentListener() {
+			miboMgr.findMyComments(curPage,new FindAllCommentListener() {
 				
 				@Override
 				public void onSuccess(List<MiboComment> comments) {
 					// TODO Auto-generated method stub
-					refreshPull();
+					if(comments.size()>0){
+						checkMyComAdapter.addAll(comments);
+						curPage++;
+						ShowToast.showShortToast(EditMyMiboActivity.this, "加载评论成功");
+					}else{
+						ShowToast.showShortToast(EditMyMiboActivity.this, "没有更多数据了");
+					}
+					
 					loadingTips.setVisibility(View.GONE);
-					checkMyComAdapter.removeAll();
-					checkMyComAdapter.addAll(comments);
 					mListView.setVisibility(View.VISIBLE);
+					refreshLoad();
+					
 				}
 				
 				@Override
 				public void onFailure(int code, String error) {
 					// TODO Auto-generated method stub
-					refreshPull();
+					
 					mListView.setVisibility(View.GONE);
 					loadingTips.setText("加载失败："+"\n"+"code："+code+"\nerror："+error);
 					loadingTips.setVisibility(View.VISIBLE);
+					refreshLoad();
 					
 				}
 			});
@@ -360,11 +382,11 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	}
 	
 	private void deletelocalMiboData(){
-		for(Integer i : SelectPositionList){
-			miboList.remove(i);
+		int i = SelectPositionList.size()-1;
+		for(;i>=0;i--){
+			miboList.remove(SelectPositionList.get(i));
+			checkMyMiboAdapter.remove(SelectPositionList.get(i));
 		}
-		checkMyMiboAdapter.removeAll();
-		checkMyMiboAdapter.addAll(miboList);
 	}
 	
 	
@@ -391,11 +413,13 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	}
 	
 	private void deletelocalCommentData(){
-		for(Integer i : SelectPositionList){
-			miboList.remove(i);
+		int i = SelectPositionList.size()-1;
+		for(;i>=0;i--){
+			commentList.remove(SelectPositionList.get(i));
+			checkMyComAdapter.remove(SelectPositionList.get(i));
 		}
-		checkMyComAdapter.removeAll();
-		checkMyComAdapter.addAll(commentList);
+/*		checkMyComAdapter.removeAll();
+		checkMyComAdapter.addAll(commentList);*/
 	}
 	
 	private void refreshLoad(){
@@ -420,7 +444,7 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	public void onLoadMore() {
 		// TODO Auto-generated method stub
 		Log.i(LogTag, "执行加载更多操作");
-		
+		findata();
 	}
 
 }

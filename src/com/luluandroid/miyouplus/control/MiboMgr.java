@@ -32,6 +32,8 @@ public class MiboMgr {
 	private Context context;
 	private MiboComment comment;
 	private Mibos mibo;
+	private List<MiboComment> commentList;
+	private int limit = 2;
 	public MiboMgr(Context context) {
 		super();
 		this.context = context;
@@ -167,11 +169,11 @@ public class MiboMgr {
 	 * @param content
 	 * @return -1 代表内容为空
 	 */
-	public int saveComment(String content,final Mibos miboParent,final SaveCommentAndMiboListener saveCommentAndMiboListener){
+	public int saveComment(String content,final Mibos miboParent,String fromUserName,String fromUserId,final SaveCommentAndMiboListener saveCommentAndMiboListener){
 		if(TextUtils.isEmpty(content)){
 			return -1;
 		}
-		comment = new MiboComment(miboParent,content,miboParent.getHeadUserName());
+		comment = new MiboComment(miboParent,content,fromUserName,fromUserId);
 		comment.save(context, new SaveListener() {
 			
 			@Override
@@ -245,11 +247,12 @@ public class MiboMgr {
 	}
 	
 	public void deleteSelectComment(List<MiboComment>CommentList,final DeleteMiboListener deleteMiboListener){
-
+		commentList = CommentList;
 		List<BmobObject> deleteObjects = new ArrayList<BmobObject>();
 		for(MiboComment mibocomment :CommentList){
 			MiboComment temp = new MiboComment();
 			temp.setObjectId(mibocomment.getObjectId());
+			mibocomment.getMiboParent().getObjectId();
 			deleteObjects.add(temp);
 		}
 		new BmobObject().deleteBatch(context, deleteObjects, new DeleteListener() {
@@ -270,16 +273,18 @@ public class MiboMgr {
 	}
 	
 	/**
-	 * 用于打开app进行秘博初始化查询
+	 * 选择缓存或者网络查询进行秘博查询
+	 * @param CacheOrNetWork
+	 * @param NeworOld
+	 * @param time
 	 * @param findMiboListener
 	 */
-	public void findinitialMibo(final FindMiboListener findMiboListener){
+	public void findNetWorkMibo(int page,final FindMiboListener findMiboListener){
 		BmobQuery<Mibos>query = new BmobQuery<Mibos>();
-		//测试
-		query.setLimit(2);
+		query.setLimit(limit);
+		query.setSkip(page*limit);
 		query.order("-createdAt");
-		query.setCachePolicy(CachePolicy.CACHE_ELSE_NETWORK);
-		query.setMaxCacheAge(1000L);
+		query.setCachePolicy(CachePolicy.IGNORE_CACHE);
 		query.findObjects(context, new FindListener<Mibos>() {
 
 			@Override
@@ -289,75 +294,20 @@ public class MiboMgr {
 			}
 
 			@Override
-			public void onSuccess(List<Mibos> arg0) {
+			public void onSuccess(List<Mibos> mibosList) {
 				// TODO Auto-generated method stub
+				findMiboListener.onSuccess(mibosList);
 				
-				findMiboListener.onSuccess(arg0);
 			}
 		});
 	}
 	
-	/**
-	 * 选择缓存或者网络查询进行秘博查询
-	 * @param CacheOrNetWork
-	 * @param NeworOld
-	 * @param time
-	 * @param findMiboListener
-	 */
-	public void findCacheOrNetWorkMibo(boolean CacheOrNetWork,boolean NeworOld,final FindMiboListener findMiboListener){
-		BmobQuery<Mibos>query = new BmobQuery<Mibos>();
-		query.setLimit(30);
-		if(NeworOld){
-			query.order("-createdAt");
-		}else{
-			query.order("-createdAt");
-		}
-		
-		
-		if(CacheOrNetWork){
-			if(query.hasCachedResult(context)){
-				query.setCachePolicy(CachePolicy.CACHE_ONLY);
-				query.findObjects(context, new FindListener<Mibos>() {
-
-					@Override
-					public void onError(int arg0, String arg1) {
-						// TODO Auto-generated method stub
-						findMiboListener.onFailure(arg0, arg1);
-					}
-
-					@Override
-					public void onSuccess(List<Mibos> mibosList) {
-						// TODO Auto-generated method stub
-						findMiboListener.onSuccess(mibosList);
-					}
-				});
-			}else{
-				ShowToast.showShortToast(context, "缓存没有秘博");
-			}
-		}else{
-			query.setCachePolicy(CachePolicy.NETWORK_ONLY);
-			query.findObjects(context, new FindListener<Mibos>() {
-
-				@Override
-				public void onError(int arg0, String arg1) {
-					// TODO Auto-generated method stub
-					findMiboListener.onFailure(arg0, arg1);
-				}
-
-				@Override
-				public void onSuccess(List<Mibos> mibosList) {
-					// TODO Auto-generated method stub
-					findMiboListener.onSuccess(mibosList);
-				}
-			});
-		}
-		
-	}
-	
-	public void findMyMibo(final FindMiboListener findMiboListener){
+	public void findMyMibo(User user,int page,final FindMiboListener findMiboListener){
 		BmobQuery<Mibos> query = new BmobQuery<Mibos>();
-		query.addWhereEqualTo("headUserName", User.getCurrentUser(context).getUsername());
-		query.setLimit(100);
+//		query.addWhereRelatedTo("myUser", new BmobPointer(user));
+		query.addWhereEqualTo("fromUserId", User.getCurrentUser(context).getObjectId());
+		query.setLimit(limit);
+		query.setSkip(page*limit);
 		query.order("-createdAt");
 		query.setCachePolicy(CachePolicy.IGNORE_CACHE);
 		query.findObjects(context, new FindListener<Mibos>() {
@@ -403,7 +353,7 @@ public class MiboMgr {
 		}
 		BmobQuery<Mibos> query = new BmobQuery<Mibos>();
 		query.addWhereEqualTo("objectId", mibo.getObjectId());
-		query.setCachePolicy(CachePolicy.NETWORK_ONLY);
+		query.setCachePolicy(CachePolicy.IGNORE_CACHE);
 		query.count(context, Mibos.class, new CountListener() {
 			
 			@Override
@@ -421,14 +371,13 @@ public class MiboMgr {
 	}
 	
 	public void findCommentCount(Mibos mibo,final MiboCountListener miboCountListener){
-		if(TextUtils.isEmpty(mibo.getObjectId())||
-				TextUtils.isEmpty(comment.getObjectId())){
-			ShowToast.showShortToast(context, "当前秘博或者当前秘博对象的objectId为空!");
+		if(TextUtils.isEmpty(mibo.getObjectId())){
+			ShowToast.showShortToast(context, "当前秘博对象的objectId为空!");
 			return;
 		}
 		BmobQuery<MiboComment>query  = new BmobQuery<MiboComment>();
 		query.addWhereRelatedTo("Comments", new BmobPointer(mibo));
-		query.setCachePolicy(CachePolicy.NETWORK_ONLY);
+		query.setCachePolicy(CachePolicy.IGNORE_CACHE);
 		query.count(context, MiboComment.class, new CountListener() {
 			
 			@Override
@@ -445,13 +394,14 @@ public class MiboMgr {
 		});
 	}
 	
-	public void findALlComment(Mibos mibo,final FindAllCommentListener finalAllCommentListener){
+	public void findALlComment(Mibos mibo,int page,final FindAllCommentListener finalAllCommentListener){
 		if(TextUtils.isEmpty(mibo.getObjectId())){
 			ShowToast.showShortToast(context, "当前秘博或者当前秘博对象的objectId为空!");
 			return;
 		}
 		BmobQuery<MiboComment> comments = new BmobQuery<MiboComment>();
-		comments.setLimit(10);
+		comments.setLimit(limit);
+		comments.setSkip(page*limit);
 		comments.order("createdAt");
 		comments.addWhereRelatedTo("Comments", new BmobPointer(mibo));
 		comments.findObjects(context, new FindListener<MiboComment>() {
@@ -459,7 +409,7 @@ public class MiboMgr {
 			@Override
 			public void onSuccess(List<MiboComment> comments) {
 				// TODO Auto-generated method stub
-				finalAllCommentListener.onSuccess(comments);
+					finalAllCommentListener.onSuccess(comments);
 			}
 			
 			@Override
@@ -472,7 +422,7 @@ public class MiboMgr {
 	
 	public void findCommentAndMibo(MiboComment miboComment,FindCommentAndMiboListener findCommentAndMiboListener){
 		BmobQuery<MiboComment> query = new BmobQuery<MiboComment>();
-		query.include("user");
+		query.include("miboParent");
 		query.setCachePolicy(CachePolicy.CACHE_THEN_NETWORK);
 		this.comment = miboComment;
 		query.getObject(context, comment.getObjectId(), new GetListener<MiboComment>() {
@@ -494,12 +444,13 @@ public class MiboMgr {
 		
 	}
 	
-	public void findMyComments(final FindAllCommentListener finalAllCommentListener){
+	public void findMyComments(int page,final FindAllCommentListener finalAllCommentListener){
 		BmobQuery<MiboComment> comments = new BmobQuery<MiboComment>();
-		comments.setLimit(100);
+		comments.setLimit(limit);
+		comments.setSkip(page*limit);
 		comments.order("createdAt");
 		comments.setCachePolicy(CachePolicy.IGNORE_CACHE);
-		comments.addWhereEqualTo("UserName", BmobUser.getCurrentUser(context));
+		comments.addWhereEqualTo("fromUserId", BmobUser.getCurrentUser(context).getObjectId());
 		comments.findObjects(context, new FindListener<MiboComment>() {
 
 			@Override

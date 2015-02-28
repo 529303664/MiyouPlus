@@ -162,6 +162,14 @@ public class MainActivity extends ActivityBase implements EventListener{
 	public void setWritedPwd(Boolean isWritedPwd) {
 		this.isWritedPwd = isWritedPwd;
 	}
+	
+	public void setMiquanTipsVisble(boolean show){
+		if(show){
+			iv_miquan_tips.setVisibility(View.VISIBLE);
+		}else{
+			iv_miquan_tips.setVisibility(View.INVISIBLE);
+		}
+	}
 
 	@Override
 	protected void onResume() {

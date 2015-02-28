@@ -7,9 +7,9 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_alignParentLeft="true"
-        android:maxHeight="40dp"
-        android:maxWidth="40dp"
-        android:src="@drawable/male" />
+        android:maxHeight="35dp"
+        android:maxWidth="35dp"
+        android:src="@drawable/image_emoticon" />
 
     <TextView
         android:id="@+id/show_mycomment_head_username"
@@ -26,19 +26,19 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/show_mycomment_head_imageview"
         android:layout_alignLeft="@+id/show_mycomment_head_imageview"
-        android:gravity="center_vertical"
+        android:layout_alignRight="@+id/show_mycomment_head_imageview"
+        android:gravity="center"
         android:text="@string/florcount" />
 
     <com.rockerhieu.emojicon.EmojiconTextView
         android:id="@+id/show_mycomment_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="false"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/show_mycomment_head_username"
         android:layout_toRightOf="@+id/show_mycomment_flor"
         android:background="@null"
-        android:gravity="center"
+        android:gravity="left"
         android:height="30dp"
         android:lines="2"
         android:maxHeight="200dp"
@@ -50,5 +50,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:text="@string/time" />
+    
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_line_width_2"
+        android:layout_below="@+id/show_mycomment_content"
+        android:background="@drawable/base_horizontal_line"
+         />
 
 </RelativeLayout>
