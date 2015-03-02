@@ -70,7 +70,8 @@ public class FragmentCreatetieziNavigation extends Fragment {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				ImageManager.pictureCrop(getActivity(), Conf.TAKE_PICTURE);
+//				ImageManager.pictureCrop(getActivity(), Conf.TAKE_PICTURE);
+				((CreateTieziActivity)getActivity()).newWayTakePic();
 			}
 		});
 		gallary.setOnClickListener(new OnClickListener() {
@@ -78,7 +79,8 @@ public class FragmentCreatetieziNavigation extends Fragment {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				ImageManager.pictureCrop(getActivity(), Conf.CHOOSE_PICTURE);
+//				ImageManager.pictureCrop(getActivity(), Conf.CHOOSE_PICTURE);
+				((CreateTieziActivity)getActivity()).newWayChoosePic();
 			}
 		});
 		adjustEffect.setOnClickListener(new OnClickListener() {

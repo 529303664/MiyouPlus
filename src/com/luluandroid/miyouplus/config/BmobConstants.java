@@ -16,12 +16,15 @@ public class BmobConstants {
 	/**
 	 * 存放发送图片的目录
 	 */
-	public static String BMOB_PICTURE_PATH = Environment.getExternalStorageDirectory()	+ "/bmobimdemo/image/";
+	public static String BMOB_PICTURE_PATH = Environment.getExternalStorageDirectory()	+ "/Miyou/image/";
 	
 	/**
 	 * 我的头像保存目录
 	 */
-	public static String MyAvatarDir = "/sdcard/bmobimdemo/avatar/";
+	public static String MyAvatarDir = "/sdcard/Miyou/avatar/";
+	
+	public static final String Miyou_Mibo_Pic_Path = "/sdcard/Miyou/TempImage";
+	
 	/**
 	 * 拍照回调
 	 */
@@ -34,6 +37,8 @@ public class BmobConstants {
 	public static final int REQUESTCODE_TAKE_LOCATION = 0x000003;//位置
 	public static final String EXTRA_STRING = "extra_string";
 	
+	public static final int CROP_PIC_WIDTH=240;
+	public static final int CROP_PIC_HEIGHT=360;
 	public static final String ACTION_REGISTER_SUCCESS_FINISH ="register.success.finish";//注册成功之后登陆页面退出
 	
 }

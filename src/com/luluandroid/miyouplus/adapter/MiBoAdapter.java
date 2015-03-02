@@ -1,7 +1,10 @@
 package com.luluandroid.miyouplus.adapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import cn.bmob.im.BmobUserManager;
 import cn.bmob.v3.BmobUser;
@@ -17,6 +20,7 @@ import com.luluandroid.miyouplus.config.Conf;
 import com.luluandroid.miyouplus.control.MiboMgr;
 import com.luluandroid.miyouplus.control.MiboMgr.MiboCountListener;
 import com.luluandroid.miyouplus.extra.ShowToast;
+import com.luluandroid.miyouplus.main.CustomApplcation;
 import com.luluandroid.miyouplus.ui.ChatActivity;
 import com.luluandroid.miyouplus.ui.MainActivity;
 import com.luluandroid.miyouplus.ui.MiboDetailActivity;
@@ -36,6 +40,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -49,9 +54,15 @@ public class MiBoAdapter extends BaseAdapter {
 	private LayoutInflater mLayoutInflater;
 	private XListView tiezi_ListView;
 	private List<Mibos>mMibos;
+	private Map<String,Integer> comentCountHashMap = new HashMap<String, Integer>();
 	private User user;
 	private BmobUserManager userManager;
-	
+	private boolean flowMode;
+	private Random ra = new Random();
+	private boolean textFlag;
+	private int zanManCount;
+	private int size;
+	private Drawable drawable;
 	private Handler mHandler = new Handler() {
 
 		@Override
@@ -70,13 +81,35 @@ public class MiBoAdapter extends BaseAdapter {
 					break;
 				case ChannelCodes.UPDATEVIEW_Comment_BG:
 					handleCommentBGMsg(msg);
+					break;
+				case ChannelCodes.UPDATEVIEW_Content_Text_Color:
+					handleContentTC(msg);
+					break;
 				default:
 					break;
 			}
-			
 		}
-
 	};
+	
+	private void handleContentTC(Message msg){
+		int index = msg.arg1;
+		int firstVisible = tiezi_ListView.getFirstVisiblePosition();
+		ViewHolder holder = (ViewHolder)(tiezi_ListView.getChildAt(index-firstVisible+1).getTag());
+		if(holder != null){
+			if(textFlag){
+				//白色
+				holder.ConTextView.setTextColor(context.getResources().getColor(R.color.base_color_text_white));
+				textFlag = !textFlag;
+			}else{
+				//黑色
+				holder.ConTextView.setTextColor(context.getResources().getColor(R.color.black));
+				textFlag = !textFlag;
+			}
+			
+		}else{
+			Log.i("MiboAdapter", "tiezi_ListView.getChildAt(index-firstVisible).getTag() 为空！");
+		}
+	}
 	
 	private void handleFavorBGMsg(Message msg){
 		int index = msg.arg1;
@@ -103,13 +136,14 @@ public class MiBoAdapter extends BaseAdapter {
 			ViewHolder holder = (ViewHolder)(updateView.getTag());
 			if(holder != null){
 				holder.mi_comment.setText(String.valueOf(count));
+				comentCountHashMap.put(mibo.getObjectId(), mibo.getCommentCount());
 			}else{
 				Log.i("MiboAdapter", "tiezi_ListView.getChildAt(index-firstVisible).getTag() 为空！");
 			}
 		}else{
 			Log.i("MiboAdapter", "tiezi_ListView.getChildAt(index-firstVisible) 为空！");
 		}
-			
+		mibo = null;
 	}
 	
 	public MiBoAdapter(Context context,List<Mibos>mMibos,MiboMgr miboMgr){
@@ -120,6 +154,8 @@ public class MiBoAdapter extends BaseAdapter {
 		tiezi_ListView = (XListView)(((MainActivity)context).findViewById(
 				R.id.fragment_miquan_listview));
 		userManager = BmobUserManager.getInstance(context);
+		flowMode = CustomApplcation.getInstance().getSpUtil().isAllowSaveFlow();
+		textFlag = false;
 	}
 	
 	@Override
@@ -150,6 +186,7 @@ public class MiBoAdapter extends BaseAdapter {
 	}
 	
 	public void removeItem(int position){
+		comentCountHashMap.remove(mMibos.get(position).getObjectId());
 		mMibos.remove(position);
 		notifyDataSetChanged();
 	}
@@ -161,6 +198,7 @@ public class MiBoAdapter extends BaseAdapter {
 	
 	public void clear(){
 		mMibos.clear();
+		comentCountHashMap.clear();
 		notifyDataSetChanged();
 	}
 
@@ -203,47 +241,63 @@ public class MiBoAdapter extends BaseAdapter {
 		viewHolder.mi_comment.setText(((Mibos)mMibos.get(position)).getCommentCount().toString());
 		if(((Mibos)mMibos.get(position)).getType()== MessageType.TEXT){
 			viewHolder.bgImageView.setImageDrawable(context.getResources().getDrawable(FragmentImageMould.mBackGroundIds[((Mibos)mMibos.get(position)).getPicResourceId()]));
-			if(((Mibos)mMibos.get(position)).getPicResourceId() == 0){
+			/*if(((Mibos)mMibos.get(position)).getPicResourceId() == 0){
 				viewHolder.ConTextView.setTextColor(context.getResources().getColor(R.color.black));
-			}
+			}*/
 			if(((Mibos)mMibos.get(position)).getPicResourceId() == 1){
 				viewHolder.ConTextView.setTextColor(context.getResources().getColor(R.color.white));
 			}
-		}else{
-			ImageLoader.getInstance().displayImage(((Mibos)mMibos.get(position)).getPic().getFileUrl(context), viewHolder.bgImageView, ImageLoadOptions.getOptions());
-		}
-		for(String zanman : ((Mibos)mMibos.get(position)).getZanMan()){
-			if(zanman.equals(BmobUser.getCurrentUser(context).getObjectId())){
-				viewHolder.favor.setText(mMibos.get(position).getFavorCount().toString());
-				Drawable drawable=context.getResources().getDrawable(R.drawable.ic_action_is_good);
-				drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-				viewHolder.favor.setCompoundDrawables(drawable, null, null,null);
-				break;
+		}else {
+			if(flowMode){
+//				viewHolder.bgImageView.setImageDrawable(context.getResources().getDrawable(FragmentImageMould.mBackGroundIds[ra.nextInt(29)+1]));
+				viewHolder.bgImageView.setImageDrawable(context.getResources().getDrawable(FragmentImageMould.mBackGroundIds[1]));
+			}else{
+				ImageLoader.getInstance().displayImage(((Mibos)mMibos.get(position)).getPic().getFileUrl(context), viewHolder.bgImageView, ImageLoadOptions.getOptions());
 			}
 		}
+		
+		zanManCount = 0;
+		size = ((Mibos)mMibos.get(position)).getZanMan().size();
+		for(String zanman:((Mibos)mMibos.get(position)).getZanMan()){
+			if(zanman.equals(BmobUser.getCurrentUser(context).getObjectId())){
+				break;
+			}
+			zanManCount++;
+		}
+		if(zanManCount<size){
+			drawable=context.getResources().getDrawable(R.drawable.ic_action_is_good);
+		}else{
+			drawable=context.getResources().getDrawable(R.drawable.ic_action_good);
+		}
+
+		viewHolder.favor.setText(mMibos.get(position).getFavorCount().toString());
+		
+		drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+		viewHolder.favor.setCompoundDrawables(drawable, null, null,null);
 		
 		readFavorList(viewHolder,((Mibos)mMibos.get(position)).getZanMan());
 		
 		viewHolder.mi_contact.setClickable(((Mibos)mMibos.get(position)).isOpentoAll());
 		viewHolder.mi_comment.setClickable(((Mibos)mMibos.get(position)).isCommentOk());
 		
-		miboMgr.findCommentCount(mMibos.get(position), new MiboCountListener() {
-			
-			@Override
-			public void onSucess(int count) {
-				// TODO Auto-generated method stub
-				Message message = mHandler.obtainMessage(ChannelCodes.UPDATEVIEW_Comment_BG,position,count);
-				mHandler.sendMessage(message);
-			}
-			
-			@Override
-			public void onFailure(int code, String error) {
-				// TODO Auto-generated method stub
-				ShowToast.showShortToast(context, "第"+position+"个更新失败：\n"+
-				"code:"+code+" error:"+error);
-			}
-		});
-		
+		if(!comentCountHashMap.containsKey(((Mibos)mMibos.get(position)).getObjectId())){
+			miboMgr.findCommentCount(mMibos.get(position), new MiboCountListener() {
+				
+				@Override
+				public void onSucess(int count) {
+					// TODO Auto-generated method stub
+					Message message = mHandler.obtainMessage(ChannelCodes.UPDATEVIEW_Comment_BG,position,count);
+					mHandler.sendMessage(message);
+				}
+				
+				@Override
+				public void onFailure(int code, String error) {
+					// TODO Auto-generated method stub
+					ShowToast.showShortToast(context, "第"+position+"个更新失败：\n"+
+					"code:"+code+" error:"+error);
+				}
+			});
+		}
 		
 		viewHolder.mi_contact.setOnClickListener(new OnClickListener() {
 			
@@ -279,10 +333,37 @@ public class MiBoAdapter extends BaseAdapter {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 //				ShowToast.showShortToast(context, "第"+position+"图片被点击");
-				CLickImage(position);
+				clickImage(position);
 			
 			}
 		});
+		
+		viewHolder.bgImageView.setOnLongClickListener(new OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View v) {
+				// TODO Auto-generated method stub
+				if(flowMode){
+					ShowToast.showShortToast(context, "关闭省流量模式");
+				}else{
+					ShowToast.showShortToast(context, "开启省流量模式");
+				}
+				flowMode = !flowMode;
+				CustomApplcation.getInstance().getSpUtil().setAllowSaveFlow(flowMode);
+				mHandler.sendEmptyMessage(ChannelCodes.MIBO_Find_SUCCESS);
+				return true;
+			}
+		});
+		convertView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				ShowToast.showShortToast(context, "点击了"+position+"区域");
+				cLickConvertView(position);
+			}
+		});
+		
 		return convertView;
 	}
 	
@@ -315,7 +396,12 @@ public class MiBoAdapter extends BaseAdapter {
 		}
 	}
 	
-	private void CLickImage(int position){
+	private void clickImage(int position){
+		Message msg = mHandler.obtainMessage(ChannelCodes.UPDATEVIEW_Content_Text_Color, position, 0);
+		mHandler.sendMessage(msg);
+	}
+	
+	private void cLickConvertView(int position){
 		Intent intent = new Intent(context,MiboDetailActivity.class);
 		Bundle bundle = new Bundle();
 		bundle.putInt(Conf.MIBO_SHOW_keyString, ChannelCodes.SHOW_SELECTED_MIBO);

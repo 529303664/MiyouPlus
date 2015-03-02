@@ -29,42 +29,11 @@ public class FileManager {
 			mFileManager = new FileManager();
 		return mFileManager;
 	}
-
-	/*public void saveFileInside(String path,String name){//内部文件存储
-		File saveFile = new File(path,name);
-		FileOutputStream mFileOutputStream  = null;
-		try {
-			mFileOutputStream = new FileOutputStream(saveFile);
-			mFileOutputStream.flush();
-			mFileOutputStream.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			saveFile.delete();
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			saveFile.delete();
-			e.printStackTrace();
-		}
-	}*/
 	
-	
-	/*public File readFileInside(String path,String name){
-		File dir = new File(path);
-		if(dir.exists()){
-			File files[] = dir.listFiles();
-			for(File file : files){
-				if(name.equals(file.getName()))return file;
-			}
-		}
-		return null;
-	}*/
-	
-	/*public void saveFileOutside(File saveFile,File saveDirectory,String savePath){
-		if(saveDirectory==sdDir&&Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			saveFile
-		}
-	}*/
+//	内部存储
+	public File getLocalPicDir(Context context,String albumName){
+		return context.getDir(albumName, Context.MODE_PRIVATE);
+	}
 	
 	/**
 	 * @return the sdDir
@@ -187,7 +156,7 @@ public class FileManager {
 				android.os.Environment.MEDIA_MOUNTED);
 	}
 	
-	public  boolean deleteFilesofSingleDir(String dirPath) {
+	public boolean deleteFilesofSingleDir(String dirPath) {
 		File folder = new File(dirPath);
 			if(!folder.exists()){
 				Log.i("file", "deleteFilesofSingleDir 目录下的文件删除失败");

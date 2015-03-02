@@ -193,7 +193,7 @@
             android:name="com.luluandroid.miyouplus.ui.EditMyMiboActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" android:label="@string/mymibocomment">
         </activity>
-        <activity android:name=".ui.MiboDetailActivity"></activity>
+        <activity android:name=".ui.MiboDetailActivity" android:windowSoftInputMode="adjustPan"></activity>
     </application>
 
 </manifest>

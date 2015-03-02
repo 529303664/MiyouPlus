@@ -2,6 +2,7 @@ package com.luluandroid.miyouplus.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -12,8 +13,11 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnDragListener;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -30,6 +34,7 @@ import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.listener.GetListener;
 import cn.bmob.v3.listener.UpdateListener;
+
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.adapter.ShowMyComAdapter;
 import com.luluandroid.miyouplus.adapter.base.ViewHolder;
@@ -70,12 +75,11 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 	private ListViewForScrollView mListView;
 	private ScrollView scrollView;
 	private RelativeLayout commentReLayout;
-	private Animation emotionEtAnimation;
-	private Animation emotionExAnimation;
 	private List<MiboComment> miboCommentList = new ArrayList<MiboComment>();
 	private Mibos selectedMibo;
 	private MiboMgr miboMgr;
-	
+	private int openMiboState;
+	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler(){
 
 		@Override
@@ -123,15 +127,12 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 	}
 	
 	private void init() {
-		emotionEtAnimation = AnimationUtils.loadAnimation(this,
-				R.anim.create_tiezi_navigation_enter);
-		emotionExAnimation = AnimationUtils.loadAnimation(this,
-				R.anim.create_tiezi_navigation_exit);
 		miboMgr = new MiboMgr(this);
+		openMiboState = getIntent().getExtras().getInt(Conf.MIBO_SHOW_keyString);
 		initView();
 		readMibo();
 		putMiboToView();
-		checkIsShowComment();
+		
 	}
 	
 	private void initView() {
@@ -196,7 +197,12 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				requetComment();
+				if(commentReLayout.getVisibility() == View.GONE){
+					requetComment();
+				}else{
+					scrollToBottom();
+				}
+				
 			}
 		});
 		
@@ -206,7 +212,7 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				// TODO Auto-generated method stub
 				if(TextUtils.isEmpty(s)){
-					sendMiboImageView.setImageResource(R.drawable.ic_action_send_now);
+					sendMiboImageView.setImageResource(R.drawable.ic_action_un_send_now);
 					sendMiboImageView.setClickable(false);
 				}else{
 					sendMiboImageView.setImageResource(R.drawable.ic_action_send_now);
@@ -237,18 +243,16 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 			}
 		});
 		
-		scrollView.setOnTouchListener(new OnTouchListener() {
+		sendMiboImageView.setOnLongClickListener(new OnLongClickListener() {
 			
-			@SuppressLint("ClickableViewAccessibility")
 			@Override
-			public boolean onTouch(View v, MotionEvent event) {
+			public boolean onLongClick(View v) {
 				// TODO Auto-generated method stub
-				if(event.getAction() == MotionEvent.ACTION_MOVE){
-					hideCommentLayout();
-				}
-				return false;
+				hideCommentLayout();
+				return true;
 			}
 		});
+		
 	}
 
 	private void initHeadLayout() {
@@ -280,8 +284,16 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 
 	private void initInputView() {
 		// 先关闭表情的fragment
-		getSupportFragmentManager().beginTransaction().hide(emotionFragment)
+		runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				getSupportFragmentManager().beginTransaction().hide(emotionFragment)
 				.commit();
+			}
+		});
+		
 		myMessageEditext.setEmoAfterTouchListener(new EmoAfterTouchListener() {
 			
 			@Override
@@ -290,22 +302,38 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 
 				// TODO Auto-generated method stub
 				if (emotionFragment.isHidden()) {
-					getSupportFragmentManager()
+					mHandler.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							hideSoftInputView();
+							getSupportFragmentManager()
 							.beginTransaction()
 							.setCustomAnimations(R.anim.left_in,
 									R.anim.right_out).show(emotionFragment)
 							.commit();
-					myMessageEditext.setEmoIconOpen();
-					
+							myMessageEditext.setEmoIconOpen();
+						}
+					});
 				} else {
-					getSupportFragmentManager()
-							.beginTransaction()
-							.setCustomAnimations(R.anim.left_in,
-									R.anim.right_out).hide(emotionFragment)
-							.commit();
-					myMessageEditext.setEmoIconClose();
+					mHandler.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							
+							getSupportFragmentManager()
+									.beginTransaction()
+									.setCustomAnimations(R.anim.left_in,
+											R.anim.right_out).hide(emotionFragment)
+									.commit();
+							myMessageEditext.setEmoIconClose();
+							showSoftInputView();
+						}
+					});
+					
 				}
-				scrollToBottom();
 			}
 		});
 	}
@@ -326,6 +354,7 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 			@Override
 			public void onSuccess(MiboComment comments) {
 				// TODO Auto-generated method stub
+				hideSoftInputView();
 				clearCommentLayout();
 				aftersendComment();
 				myComAdapter.add(comments);
@@ -484,20 +513,18 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 	}
 	
 	private void checkIsShowComment(){
-		int openMiboState = getIntent().getExtras().getInt(Conf.MIBO_SHOW_keyString);
 		if(openMiboState == ChannelCodes.SHOW_SELECTED_MIBO_WITH_COMMENT){
 			requetComment();
 		}else if(openMiboState == ChannelCodes.SHOW_SELECTED_MIBO){
+			hideSoftInputView();
 			scrollToBottom();
 		}
-		
 	}
 	
 	private void requetComment(){
 		commentReLayout.setVisibility(View.VISIBLE);
 		myMessageEditext.requestFocus();
 		showSoftInputView();
-		scrollToBottom();
 	}
 	
 	private void hideCommentLayout(){

@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
-
-    <RelativeLayout
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <GridView
+        <com.luluandroid.miyouplus.view.MyGridView
             android:id="@+id/create_tiezi_gridview"
             android:layout_width="match_parent"
             android:layout_height="150dp"
@@ -20,7 +16,7 @@
             android:scrollbars="vertical"
              >
 
-        </GridView>
+        </com.luluandroid.miyouplus.view.MyGridView>
         <View
         android:id="@+id/create_tiezi_mould_spliter1"
         android:layout_width="fill_parent"
@@ -38,5 +34,3 @@
         android:text="@string/returntext"
         />
     </RelativeLayout>
-
-</ScrollView>

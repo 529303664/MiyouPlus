@@ -1,32 +1,26 @@
 package com.luluandroid.miyouplus.ui;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.annotation.SuppressLint;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -34,7 +28,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
@@ -54,10 +47,9 @@ import cn.bmob.v3.listener.UploadFileListener;
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.bean.DBMgr;
 import com.luluandroid.miyouplus.bean.Mibos;
-import com.luluandroid.miyouplus.bean.Mibos.MessageType;
 import com.luluandroid.miyouplus.bean.User;
+import com.luluandroid.miyouplus.config.BmobConstants;
 import com.luluandroid.miyouplus.config.ChannelCodes;
-import com.luluandroid.miyouplus.config.Conf;
 import com.luluandroid.miyouplus.extra.ShowToast;
 import com.luluandroid.miyouplus.main.CustomApplcation;
 import com.luluandroid.miyouplus.ui.fragment.FragmentCreatetieziChangeBar;
@@ -66,9 +58,8 @@ import com.luluandroid.miyouplus.ui.fragment.FragmentImageMould;
 import com.luluandroid.miyouplus.util.FileManager;
 import com.luluandroid.miyouplus.util.ImageManager;
 import com.luluandroid.miyouplus.util.ImageTools;
-import com.luluandroid.miyouplus.util.TimeUtil;
+import com.luluandroid.miyouplus.util.PhotoUtil;
 import com.luluandroid.miyouplus.view.dialog.DialogProgress;
-import com.luluandroid.miyouplus.view.dialog.DialogTips;
 import com.rockerhieu.emojicon.EmojiconGridFragment;
 import com.rockerhieu.emojicon.EmojiconsFragment;
 import com.rockerhieu.emojicon.emoji.Emojicon;
@@ -84,13 +75,12 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	private FragmentCreatetieziNavigation navigationFrament;
 	private FragmentCreatetieziChangeBar changeBarFragment;
 	private ProgressBar progressBar;
-	private loadPictureAsynctask myLoadTask;
 	private FrameLayout navigationFrameLayout;
 	private ImageView navigationLfBt, navigationRtBt, imageBackgroud;
 	private EditText myMessageEditext;
 	private TextView emotionText;
 	private CheckBox contactCheckBox,CommentCheckBox;
-	private boolean NvIsOpen, IsAsynctaskOk;// 分别是判断导航是否开启和处理图片的Asynctask是否正在运行
+	private boolean NvIsOpen;// 分别是判断导航是否开启和处理图片的Asynctask是否正在运行
 	private DialogProgress progressDialog;
 	private int currentResId = 1;//当前选定的图片资源ID
 	
@@ -137,7 +127,6 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		getSupportFragmentManager().beginTransaction().hide(emotionFragment)
 				.commit();
 		NvIsOpen = false;
-		IsAsynctaskOk = true;
 		final Animation navigationEtAnimation = AnimationUtils.loadAnimation(
 				this, R.anim.create_tiezi_navigation_enter);
 		final Animation navigationExAnimation = AnimationUtils.loadAnimation(
@@ -232,7 +221,17 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
+		recycleBitmap();
 		super.onDestroy();
+	}
+	
+	public void recycleBitmap(){
+		if(tempBitmap != null && !tempBitmap.isRecycled()){
+			tempBitmap.recycle();
+		}
+		if(cropBitmap != null && !cropBitmap.isRecycled()){
+			cropBitmap.recycle();
+		}
 	}
 
 	@Override
@@ -251,23 +250,13 @@ public class CreateTieziActivity extends ActionBarActivity implements
 
 		int id = item.getItemId();
 		switch (id) {
-		case R.id.home:
-			if (myLoadTask != null) {
-				myLoadTask.onCancelled();
-			}
-			finish();
 		case R.id.action_create_tiezi_write:
 			// 数据发送
-			if (IsAsynctaskOk) {
-				myHandler.sendEmptyMessage(ChannelCodes.DIALOG_SHOW);
-				 saveAll();
-			}
+			myHandler.sendEmptyMessage(ChannelCodes.DIALOG_SHOW);
+			 saveAll();
 		default:
 			break;
 		}
-		/*
-		 * if (id == R.id.action_settings) { return true; }
-		 */
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -292,6 +281,9 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		progressDialog.dismiss();
 	}
 	
+	
+	
+	@SuppressLint("HandlerLeak")
 	private Handler myHandler = new Handler() {
 
 		@Override
@@ -301,10 +293,12 @@ public class CreateTieziActivity extends ActionBarActivity implements
 			switch (msg.what) {
 			case ChannelCodes.CREATE_TIEZI_SUCCESS:
 				setResult(ChannelCodes.CREATE_TIEZI_SUCCESS);
+				FileManager.getInstance().deleteFilesofSingleDir(BmobConstants.Miyou_Mibo_Pic_Path);
 				hideProgressDialog();
 				finish();
 				break;
 			case ChannelCodes.CREATE_TIEZI_FAIL:
+				FileManager.getInstance().deleteFilesofSingleDir(BmobConstants.Miyou_Mibo_Pic_Path);
 				hideProgressDialog();
 				setResult(ChannelCodes.CREATE_TIEZI_FAIL);
 				finish();
@@ -356,223 +350,6 @@ public class CreateTieziActivity extends ActionBarActivity implements
 			MouldFragment = new FragmentImageMould(this);
 		}
 		switchFragment(MouldFragment);
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		super.onActivityResult(requestCode, resultCode, data);
-		switch (requestCode) {
-
-		case Conf.TAKE_PICTURE:// 调用相机获得照片后的操作
-			// 将保存在本地的图片取出并缩小后显示在界面上
-			Bitmap bitmap = BitmapFactory.decodeFile(Conf.APP_SDCARD_CACHE_PATH
-					+ "/" + "image.jpg");
-			if (bitmap == null)
-				break;
-			// 处理图片
-			setPicchange(true);
-			myLoadTask = new loadPictureAsynctask(progressBar, imageBackgroud,
-					true);
-			myLoadTask.execute(bitmap);
-			break;
-		case Conf.CHOOSE_PICTURE:
-			ContentResolver resolver = getContentResolver();
-			// 照片的原始资源地址
-			if (data == null)
-				break;
-			Uri originalUri = data.getData();
-
-			try {
-				Bitmap photo = MediaStore.Images.Media.getBitmap(resolver,
-						originalUri);
-				if (photo != null) {
-					// 处理图片
-					setPicchange(true);
-					myLoadTask = new loadPictureAsynctask(progressBar,
-							imageBackgroud, false);
-					myLoadTask.execute(photo);
-				}
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			break;
-		case Conf.CROP:
-			Uri uri = null;
-			if (data != null) {
-				uri = data.getData();
-			} else {
-				String fileName = getSharedPreferences("tempImage",
-						Context.MODE_PRIVATE).getString("tempName", "");
-				uri = Uri.fromFile(new File(Conf.APP_SDCARD_CACHE_PATH,
-						fileName));
-			}
-			// 按手机屏幕分辨率的一半形式裁剪图片
-			ImageManager.cropImage(CreateTieziActivity.this, uri,
-					ImageManager.getPhoneWidth(this),
-					ImageManager.getPhoneHeight(this) / 2, Conf.CROP_PICTURE);
-			break;
-		case Conf.CROP_PICTURE:
-			Bitmap photo = null;
-			if (data == null)
-				break;
-			Uri photoUri = data.getData();
-			if (photoUri != null)
-				photo = BitmapFactory.decodeFile(photoUri.getPath());
-			if (photo == null) {
-				Bundle extra = data.getExtras();
-				if (extra != null) {
-					photo = (Bitmap) extra.get("data");
-				} else
-					break;
-			}
-			// 处理图片
-			setPicchange(true);
-			myLoadTask = new loadPictureAsynctask(progressBar, imageBackgroud,
-					false);
-			myLoadTask.execute(photo);
-			break;
-		default:
-			break;
-		}
-	}
-
-	// 修改后的图片路径
-	public static String fileSavePath = "";
-
-	class loadPictureAsynctask extends AsyncTask<Bitmap, Integer, String> {
-
-		private Bitmap pictureImage;
-		private ProgressBar progressBar;
-		private ImageView imageBackgroud;
-		private boolean flag;// 压缩和不压缩标志位
-
-		public loadPictureAsynctask(ProgressBar progressBar,
-				ImageView imageBackgroud, boolean flag) {
-			super();
-			this.progressBar = progressBar;
-			this.imageBackgroud = imageBackgroud;
-			this.flag = flag;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#onCancelled()
-		 */
-		@Override
-		protected void onCancelled() {
-			// TODO Auto-generated method stub
-			ShowToast.showShortToast(CreateTieziActivity.this, "照片本地保存成功");
-			fileSavePath = "";
-			progressBar.setIndeterminate(false);
-			progressBar.setVisibility(View.GONE);
-			if (pictureImage != null) {
-				pictureImage.recycle();
-				pictureImage = null;
-			}
-			IsAsynctaskOk = true;
-			super.onCancelled();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute(String result) {
-			// TODO Auto-generated method stub
-			super.onPostExecute(result);
-			IsAsynctaskOk = true;
-			if ("success".equals(result)) {
-				/*
-				 * imageBackgroud.setBackgroundDrawable(ImageTools
-				 * .bitmapToDrawable(pictureImage));
-				 */
-				imageBackgroud.setImageBitmap(pictureImage);
-				Log.i("userImageFilePath", "执行到了照片这一步");
-				Log.i("userImageFilePath", fileSavePath);
-				// 下面开始上传图片
-			}
-			ShowToast.showShortToast(CreateTieziActivity.this, "照片本地保存"
-					+ result);
-			progressBar.setIndeterminate(false);
-			progressBar.setVisibility(View.GONE);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#onPreExecute()
-		 */
-		@Override
-		protected void onPreExecute() {
-			// TODO Auto-generated method stub
-			fileSavePath = "";
-			IsAsynctaskOk = false;
-			super.onPreExecute();
-			progressBar.setVisibility(View.VISIBLE);
-			progressBar.setIndeterminate(true);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#onProgressUpdate(java.lang.Object[])
-		 */
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			// TODO Auto-generated method stub
-			super.onProgressUpdate(values);
-		}
-
-		@Override
-		protected String doInBackground(Bitmap... params) {
-			// TODO Auto-generated method stub
-			// 字节流形式存储图片
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ByteArrayInputStream isBm = null;
-			String strfilename = String.valueOf(System.currentTimeMillis());
-			System.out.println("params[0]:" + params[0]);
-			if (flag == true) {// 压缩
-				// 保存原图片的40%质量作为最终显示的图片
-				params[0].compress(CompressFormat.JPEG, 40, baos);
-
-			} else {
-				params[0].compress(CompressFormat.JPEG, 100, baos);
-			}
-			isBm = new ByteArrayInputStream(baos.toByteArray());
-			System.out.println("isBm:" + isBm);
-			try {
-				pictureImage = ImageTools
-						.compressBySize(
-								isBm,
-								ImageManager
-										.getPhoneWidth(CreateTieziActivity.this) / 2,
-								ImageManager
-										.getPhoneHeight(CreateTieziActivity.this) / 2);
-				ImageTools.deletePhotoAtPathAndName(Conf.APP_SDCARD_CACHE_PATH,
-						"image" + ".jpg");
-				ImageTools.savePhotoToSDCard(pictureImage,
-						Conf.APP_SDCARD_CACHE_PATH, strfilename, ".jpg");
-				fileSavePath = Conf.APP_SDCARD_CACHE_PATH + "/" + strfilename
-						+ ".jpg";
-				params[0].recycle();
-				baos.close();
-				isBm.close();
-				return "success";
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				Log.e("Compress", "照片压缩失败" + e.toString());
-				e.printStackTrace();
-				return "failure";
-			}
-		}
 	}
 
 	/*
@@ -631,9 +408,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 					+ System.currentTimeMillis());
 			SaveLocalImage(mibo);
 			// 网络保存
-//			final BmobFile bmobfile = new BmobFile(new File(Conf.APP_SDCARD_ALBUM_PATH, mibo.getLocalPicName()+".jpg"));
-			final BmobFile bmobfile = new BmobFile(new File(FileManager.getInstance().
-					getAlbumStorageDir(this, Conf.SD_Album_Dir_Name), mibo
+			final BmobFile bmobfile = new BmobFile(new File(BmobConstants.Miyou_Mibo_Pic_Path, mibo
 					.getLocalPicName()+".jpg"));
 			bmobfile.uploadblock(this, new UploadFileListener() {
 
@@ -723,6 +498,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 			public void onSuccess() {
 				// TODO Auto-generated method stub
 				Log.i("CreateTieziActivity", "关联秘博到用户成功");
+				
 				myHandler.sendEmptyMessage(ChannelCodes.CREATE_TIEZI_SUCCESS);
 			}
 			
@@ -743,28 +519,158 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		List<Mibos> miboList = new Vector<Mibos>();
 
 		miboList.add(mibo);
-		/*if(!DBMgr.getInstance(getApplicationContext()).addTiezi(miboList)){
-			return false;
-		}
-		return DBMgr.getInstance(getApplicationContext()).addTiezi(mibo.getComment());
-*/		return DBMgr.getInstance(getApplicationContext()).addTiezi(miboList);
+		return DBMgr.getInstance(getApplicationContext()).addTiezi(miboList);
 	}
 
 	/**
 	 * 保存帖子照片到本地
 	 */
+	Bitmap tempBitmap;
 	private void SaveLocalImage(Mibos mibo) {
 		// TODO Auto-generated method stub
 		imageBackgroud.setDrawingCacheEnabled(true);
-		Bitmap tempBitmap = imageBackgroud.getDrawingCache();
-		FileManager.getInstance().deleteFilesofSingleDir(
-				Conf.APP_SDCARD_CACHE_PATH);
-		/*ImageTools
-				.savePhotoToSDCard(tempBitmap, Conf.APP_SDCARD_ALBUM_PATH, mibo
-						.getLocalPicName(), ".jpg");*/
-		ImageTools.savePhotoToAppPrivateSD(tempBitmap, FileManager.getInstance().
-				getAlbumStorageDir(this, Conf.SD_Album_Dir_Name), mibo
+		tempBitmap = imageBackgroud.getDrawingCache();
+		ImageTools.savePhotoToSDCard(tempBitmap, BmobConstants.Miyou_Mibo_Pic_Path, mibo
 				.getLocalPicName(), ".jpg");
+	}
+	
+	public String filePath = "";
+	
+	public void newWayTakePic(){
+		File dir = new File(BmobConstants.Miyou_Mibo_Pic_Path);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		// 原图
+		File file = new File(dir, new SimpleDateFormat("yyMMddHHmmss",Locale.getDefault())
+				.format(new Date()));
+		filePath = file.getAbsolutePath();// 获取相片的保存路径
+		Uri imageUri = Uri.fromFile(file);
+
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+		startActivityForResult(intent,
+				BmobConstants.REQUESTCODE_UPLOADAVATAR_CAMERA);
+	}
+	
+	public void newWayChoosePic(){
+		Intent intent = new Intent(Intent.ACTION_PICK, null);
+		intent.setDataAndType(
+				MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+		startActivityForResult(intent,
+				BmobConstants.REQUESTCODE_UPLOADAVATAR_LOCATION);
+	}
+	
+	/**
+	 * @Title: startImageAction
+	 * @return void
+	 * @throws
+	 */
+	private void startImageAction(Uri uri, int outputX, int outputY,
+			int requestCode, boolean isCrop) {
+		Intent intent = null;
+		if (isCrop) {
+			intent = new Intent("com.android.camera.action.CROP");
+		} else {
+			intent = new Intent(Intent.ACTION_GET_CONTENT, null);
+		}
+		intent.setDataAndType(uri, "image/*");
+		intent.putExtra("crop", "true");
+		intent.putExtra("aspectX", 1);
+		intent.putExtra("aspectY", 1);
+		intent.putExtra("outputX", outputX);
+		intent.putExtra("outputY", outputY);
+		intent.putExtra("scale", true);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+		intent.putExtra("return-data", true);
+		intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+		intent.putExtra("noFaceDetection", true); // no face detection
+		startActivityForResult(intent, requestCode);
+	}
+	
+	boolean isFromCamera = false;// 区分拍照旋转
+	int degree = 0;
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+		case BmobConstants.REQUESTCODE_UPLOADAVATAR_CAMERA:// 拍照修改图片
+			if (resultCode == RESULT_OK) {
+				if (!Environment.getExternalStorageState().equals(
+						Environment.MEDIA_MOUNTED)) {
+					ShowToast.showShortToast(CreateTieziActivity.this, "SD不可用");
+					return;
+				}
+				isFromCamera = true;
+				File file = new File(filePath);
+				degree = PhotoUtil.readPictureDegree(file.getAbsolutePath());
+				Log.i("life", "拍照后的角度：" + degree);
+				startImageAction(Uri.fromFile(file), BmobConstants.CROP_PIC_WIDTH, BmobConstants.CROP_PIC_HEIGHT,
+						BmobConstants.REQUESTCODE_UPLOADAVATAR_CROP, true);
+				setPicchange(true);
+			}
+			break;
+		case BmobConstants.REQUESTCODE_UPLOADAVATAR_LOCATION:// 本地修改图片
+			Uri uri = null;
+			if (data == null) {
+				return;
+			}
+			if (resultCode == RESULT_OK) {
+				if (!Environment.getExternalStorageState().equals(
+						Environment.MEDIA_MOUNTED)) {
+					ShowToast.showShortToast(CreateTieziActivity.this,"SD不可用");
+					return;
+				}
+				isFromCamera = false;
+				uri = data.getData();
+				startImageAction(uri, BmobConstants.CROP_PIC_WIDTH, BmobConstants.CROP_PIC_HEIGHT,
+						BmobConstants.REQUESTCODE_UPLOADAVATAR_CROP, true);
+				setPicchange(true);
+			} else {
+				ShowToast.showShortToast(CreateTieziActivity.this,"照片获取失败");
+			}
+
+			break;
+		case BmobConstants.REQUESTCODE_UPLOADAVATAR_CROP:// 裁剪头像返回
+			// TODO sent to crop
+			if (data == null) {
+				ShowToast.showShortToast(this, "取消选择");
+				return;
+			} else {
+				saveCropAvator(data);
+				setPicchange(true);
+			}
+			// 初始化文件路径
+			filePath = "";
+			break;
+		default:
+			break;
+
+		}
+	}
+	String path;
+	
+	
+	Bitmap cropBitmap;
+	/**
+	 * 保存裁剪的头像
+	 * 
+	 * @param data
+	 */
+	private void saveCropAvator(Intent data) {
+		Bundle extras = data.getExtras();
+		if (extras != null) {
+			cropBitmap = extras.getParcelable("data");
+			if (cropBitmap != null) {
+				if (isFromCamera && degree != 0) {
+					cropBitmap = PhotoUtil.rotaingImageView(degree, cropBitmap);
+				}
+				imageBackgroud.setDrawingCacheEnabled(false);
+				imageBackgroud.setImageBitmap(cropBitmap);
+			}
+		}
 	}
 	
 	/**

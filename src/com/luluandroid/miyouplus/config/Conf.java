@@ -11,6 +11,7 @@ public class Conf {
 	public static final String APP_SDCARD_PATH= FileManager.getInstance().getSdDir().getAbsolutePath()+"/MiYou";
 	public static final String APP_SDCARD_CACHE_PATH= FileManager.getInstance().getSdDir().getAbsolutePath()+"/MiYou/Cache";
 	public static final String APP_SDCARD_ALBUM_PATH = FileManager.getInstance().getSdDir().getAbsolutePath()+"/MiYou/Album";
+	public static final String Local_Album_Dir_Name = "Album";
 	//appsd卡album目录名字
 	public static final String SD_Album_Dir_Name = "Miyou";
 	

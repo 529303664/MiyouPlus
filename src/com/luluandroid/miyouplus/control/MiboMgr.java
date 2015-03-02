@@ -33,7 +33,7 @@ public class MiboMgr {
 	private MiboComment comment;
 	private Mibos mibo;
 	private List<MiboComment> commentList;
-	private int limit = 2;
+	private int limit = 10;
 	public MiboMgr(Context context) {
 		super();
 		this.context = context;

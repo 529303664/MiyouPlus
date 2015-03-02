@@ -30,6 +30,7 @@ import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Thumbnails;
+import android.util.Log;
 
 /**
  * Tools for handler picture
@@ -438,6 +439,10 @@ public final class ImageTools {
 	public static void deletePhotoAtPathAndName(String path, String fileName) {
 		if (checkSDCardAvailable()) {
 			File folder = new File(path);
+			if(folder == null || !folder.isDirectory()){
+				Log.i("ImageTools", "deletePhotoAtPathAndName:"+"目录为空");
+				return;
+			}
 			File[] files = folder.listFiles();
 			for (int i = 0; i < files.length; i++) {
 				System.out.println(files[i].getName());

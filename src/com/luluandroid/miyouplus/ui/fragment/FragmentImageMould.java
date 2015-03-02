@@ -3,13 +3,16 @@ package com.luluandroid.miyouplus.ui.fragment;
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.adapter.MouldAdapter;
 import com.luluandroid.miyouplus.ui.CreateTieziActivity;
+import com.luluandroid.miyouplus.view.MyGridView;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -22,7 +25,7 @@ public class FragmentImageMould extends Fragment {
 
 	private Context context;
 	private TextView returnTextView;
-	private GridView mGridView;
+	private MyGridView mGridView;
 	
 			
 	public static final Integer[] mThumbIds = {
@@ -57,11 +60,13 @@ public class FragmentImageMould extends Fragment {
 
 	private void initView(){
 		returnTextView = (TextView)getActivity().findViewById(R.id.create_tiezi_mould_return);
-		mGridView = (GridView)getActivity().findViewById(R.id.create_tiezi_gridview);
+		mGridView = (MyGridView)getActivity().findViewById(R.id.create_tiezi_gridview);
 		if(mGridView==null){
 			System.out.println("mGridViewÎª¿Õ");
 		}
 		mGridView.setAdapter(new MouldAdapter(getActivity(),mThumbIds));
+		mGridView.requestFocus();
+		mGridView.smoothScrollToPosition(0);
 		mGridView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -83,6 +88,7 @@ public class FragmentImageMould extends Fragment {
 				((CreateTieziActivity)getActivity()).switchToNavigationFragment();
 			}
 		});
+		
 	}
 
 	/* (non-Javadoc)
@@ -94,6 +100,7 @@ public class FragmentImageMould extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 		initView();
 	}
-
+	
+	
 	
 }

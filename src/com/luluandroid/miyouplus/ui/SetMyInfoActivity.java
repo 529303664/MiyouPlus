@@ -619,12 +619,12 @@ public class SetMyInfoActivity extends ActivityBase implements OnClickListener {
 				iv_set_avator.setImageBitmap(bitmap);
 				// 保存图片
 				String filename = new SimpleDateFormat("yyMMddHHmmss")
-						.format(new Date());
+						.format(new Date())+".jpg";
 				path = BmobConstants.MyAvatarDir + filename;
 				PhotoUtil.saveBitmap(BmobConstants.MyAvatarDir, filename,
 						bitmap, true);
 				// 上传头像
-				if (bitmap != null && bitmap.isRecycled()) {
+				if (bitmap != null && !bitmap.isRecycled()) {
 					bitmap.recycle();
 				}
 			}

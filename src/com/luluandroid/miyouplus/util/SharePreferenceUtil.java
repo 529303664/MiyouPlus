@@ -24,6 +24,7 @@ public class SharePreferenceUtil {
 	private String SHARED_KEY_VIBRATE = "shared_key_vibrate";
 	private String SHARED_KEY_SELF_PASSWORD = "shared_key_self_password";
 	private String SHARED_KEY_MIYOU_PASSWORD = "shared_key_miyou_password";
+	private String SHARED_KEY_SAVE_FLOW = "shared_key_save_flow";
 	
 	// 是否允许推送通知
 	public boolean isAllowPushNotify() {
@@ -72,6 +73,15 @@ public class SharePreferenceUtil {
 
 			public void setMiYouPassword(String password) {
 				editor.putString(SHARED_KEY_MIYOU_PASSWORD, password);
+				editor.commit();
+			}
+			
+			public boolean isAllowSaveFlow(){
+				return mSharedPreferences.getBoolean(SHARED_KEY_SAVE_FLOW, false);
+			}
+			
+			public void setAllowSaveFlow(boolean isSave){
+				editor.putBoolean(SHARED_KEY_SAVE_FLOW, isSave);
 				editor.commit();
 			}
 

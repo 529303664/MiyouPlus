@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-    <include
-                android:id="@+id/common_actionbar"
-                layout="@layout/include_action_bar"
-                android:layout_width="match_parent"
-    android:layout_height="@dimen/base_action_bar_height"
-                 />
     
     <ScrollView 
     android:id="@+id/mibodetail_scrollView1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_below="@+id/common_actionbar"
+    android:layout_marginTop="@dimen/base_action_bar_height"
      >
     
         <LinearLayout
@@ -29,24 +21,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="10dp"
+    			android:paddingBottom="15dp"
                 layout="@layout/tiezi_item" />
 
-            <TextView
-                android:id="@+id/mibo_detail_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:gravity="left"
-                android:text="@string/comment"
-                android:textSize="20sp" />
 
             <com.luluandroid.miyouplus.view.ListViewForScrollView
                 android:id="@+id/mibo_detail_comment_listview"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="2.0"
+                android:divider="@drawable/base_horizontal_line"
+                android:dividerHeight="1dp"
+                android:background="@color/white"
                 android:cacheColorHint="@android:color/transparent"
                 android:fadingEdgeLength="0dp"
                 android:fastScrollEnabled="true"
@@ -54,14 +40,23 @@
                 android:transcriptMode="normal" >
 
     </com.luluandroid.miyouplus.view.ListViewForScrollView>
-            
-            <RelativeLayout
+        </LinearLayout>
+</ScrollView>
+		<include
+                android:id="@+id/common_actionbar"
+                layout="@layout/include_action_bar"
+                android:layout_width="match_parent"
+    			android:layout_height="@dimen/base_action_bar_height"
+    			android:focusable="true"
+                 />
+    
+ 	<RelativeLayout
             android:id="@+id/mibo_detail_comment_re_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1.0"
-            android:layout_gravity="bottom"
             android:visibility="gone"
+            android:layout_gravity="bottom"
+            android:background="@color/base_bg"
              >
 
             <com.luluandroid.miyouplus.view.EditTextWithEmojiBtn
@@ -77,7 +72,6 @@
                 android:maxLines="1"
                 android:focusable="true"
                  >
-                 <requestFocus />
             </com.luluandroid.miyouplus.view.EditTextWithEmojiBtn>
 
             <fragment
@@ -99,8 +93,4 @@
                 android:src="@drawable/ic_action_un_send_now" />
 
         </RelativeLayout>
-        </LinearLayout>
-</ScrollView>
-    
-</RelativeLayout>
-
+</FrameLayout>

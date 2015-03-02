@@ -3,6 +3,7 @@ package com.luluandroid.miyouplus.util;
 import java.io.File;
 
 import com.luluandroid.miyouplus.config.Conf;
+import com.luluandroid.miyouplus.ui.CreateTieziActivity;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -52,102 +53,6 @@ public class ImageManager {
 		WindowManager wm = (WindowManager)ctx.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		return display.getHeight();
-	}
-	
-	/**
-	 * 调用系统裁剪图片方法
-	 * 
-	 * @param uri
-	 * @param outputX
-	 * @param outputY
-	 * @param requestCode
-	 */
-	public static void cropImage(Context mContext, Uri uri, int outputX,
-			int outputY, int requestCode) {
-		Intent intent = new Intent("com.android.camera.action.CROP");
-		intent.setDataAndType(uri, "image/*");
-		intent.putExtra("crop", "true");
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
-		intent.putExtra("outputX", outputX);
-		intent.putExtra("outputY", outputY);
-		intent.putExtra("outputFormat", "JPEG");
-		intent.putExtra("noFaceDetection", true);
-		intent.putExtra("return-data", true);
-		((FragmentActivity)mContext).startActivityForResult(intent, requestCode);
-	}
-
-	public static void pictureCrop(final Context context,final int isTake) {
-		
-		AlertDialog.Builder picturebuilder = new AlertDialog.Builder(context);
-		picturebuilder.setTitle("图片是否需要裁剪?");
-		picturebuilder.setNegativeButton("取消", null);
-		picturebuilder.setItems(new String[] { "裁剪", "不了" },
-				new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						switch (which) {
-						case 0: // 裁剪
-							showPicturePicker(context,isTake,true);
-							break;
-						case 1: // 取消裁剪
-							showPicturePicker(context,isTake,false);
-							break;
-						default:
-							break;
-						}
-					}
-				});
-		picturebuilder.create().show();
-	}
-
-	public static void showPicturePicker(Context context, int isTake, boolean isCrop) {
-		int REQUEST_CODE;
-		System.out.println("响应了showPicturePicker");
-		switch (isTake) {
-		case Conf.TAKE_PICTURE:
-			Uri imageuri = null;
-			String fileName = null;
-			Intent openCameraIntent = new Intent(
-					MediaStore.ACTION_IMAGE_CAPTURE);
-			if (isCrop) {
-				REQUEST_CODE = Conf.CROP;
-
-				// 删除上一次截图的临时文件
-				SharedPreferences mSharedPreferences = context
-						.getSharedPreferences("tempImage", Context.MODE_PRIVATE);
-				ImageTools.deletePhotoAtPathAndName(Conf.APP_SDCARD_CACHE_PATH,
-						mSharedPreferences.getString("tempName", ""));
-				// 保存本次截图临时文件名字
-				fileName = String.valueOf(System.currentTimeMillis())+".jpg";
-				Editor editor = mSharedPreferences.edit();
-				editor.putString("tempName", fileName);
-				editor.apply();
-			}else{
-				REQUEST_CODE = Conf.TAKE_PICTURE;
-				fileName="image.jpg";
-			}
-			imageuri = Uri.fromFile(new File(Conf.APP_SDCARD_CACHE_PATH,fileName));
-			openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageuri);
-			//这句话测试看行不行
-			((FragmentActivity)context).startActivityForResult(openCameraIntent, REQUEST_CODE);
-			break;
-
-		case Conf.CHOOSE_PICTURE://从相册中选择图片
-			Intent openAlbumIntent = new Intent(Intent.ACTION_GET_CONTENT);
-			if(isCrop){
-				REQUEST_CODE = Conf.CROP;
-			}else{
-				REQUEST_CODE = Conf.CHOOSE_PICTURE;
-			}
-			openAlbumIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-			((FragmentActivity)context).startActivityForResult(openAlbumIntent, REQUEST_CODE);
-			break;
-		default:
-			break;
-		}
 	}
 	
 	/**

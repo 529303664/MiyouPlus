@@ -27,7 +27,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@null"
-            android:gravity="center" />
+            android:gravity="center"
+            android:textColor="@color/black"
+             />
 
     </FrameLayout>
     <include 
@@ -117,7 +119,7 @@
 	        android:singleLine="true"
 			android:ellipsize="end"
 	        android:text="0"
-	        android:textSize="7sp" />
+	        android:textSize="12sp" />
 
 	    <TextView
 	        android:id="@+id/tiezi_favor_tips"
