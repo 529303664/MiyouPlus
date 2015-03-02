@@ -47,6 +47,7 @@ import com.luluandroid.miyouplus.control.MiboMgr;
 import com.luluandroid.miyouplus.control.MiboMgr.FindAllCommentListener;
 import com.luluandroid.miyouplus.control.MiboMgr.SaveCommentAndMiboListener;
 import com.luluandroid.miyouplus.interfaces.EmoAfterTouchListener;
+import com.luluandroid.miyouplus.main.CustomApplcation;
 import com.luluandroid.miyouplus.ui.fragment.FragmentImageMould;
 import com.luluandroid.miyouplus.util.ImageLoadOptions;
 import com.luluandroid.miyouplus.view.EditTextWithEmojiBtn;
@@ -453,13 +454,18 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 			miboPicImageView.setImageDrawable(getResources().getDrawable(FragmentImageMould.mBackGroundIds[selectedMibo.getPicResourceId()]));
 			if(selectedMibo.getPicResourceId() == 0){
 				miboConTextView.setTextColor(getResources().getColor(R.color.black));
-			}else if(selectedMibo.getPicResourceId() == 1){
-				miboConTextView.setTextColor(getResources().getColor(R.color.white));
 			}
+			/*if(selectedMibo.getPicResourceId() == 1){
+				miboConTextView.setTextColor(getResources().getColor(R.color.white));
+			}*/
 			
 		}else{
-			ImageLoader.getInstance().displayImage(selectedMibo.getPic().getFileUrl(this),
-					miboPicImageView, ImageLoadOptions.getOptions());
+			if(CustomApplcation.getInstance().getSpUtil().isAllowSaveFlow()){
+			miboPicImageView.setImageDrawable(getResources().getDrawable(FragmentImageMould.mBackGroundIds[1]));
+			}else{
+				ImageLoader.getInstance().displayImage(selectedMibo.getPic().getFileUrl(this),
+						miboPicImageView, ImageLoadOptions.getOptions());
+			}
 		}
 		for(String zanman : selectedMibo.getZanMan()){
 			if(zanman.equals(BmobUser.getCurrentUser(this).getObjectId())){
