@@ -359,7 +359,7 @@ public class MiBoAdapter extends BaseAdapter {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				ShowToast.showShortToast(context, "点击了"+position+"区域");
+//				ShowToast.showShortToast(context, "点击了"+position+"区域");
 				cLickConvertView(position);
 			}
 		});

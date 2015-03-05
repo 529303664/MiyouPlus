@@ -15,6 +15,7 @@ import com.luluandroid.miyouplus.bean.MiboComment;
 import com.luluandroid.miyouplus.bean.Mibos;
 import com.luluandroid.miyouplus.bean.User;
 import com.luluandroid.miyouplus.config.ChannelCodes;
+import com.luluandroid.miyouplus.config.Conf;
 import com.luluandroid.miyouplus.control.MiboMgr;
 import com.luluandroid.miyouplus.control.MiboMgr.DeleteMiboListener;
 import com.luluandroid.miyouplus.control.MiboMgr.FindAllCommentListener;
@@ -59,7 +60,8 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	private List<Integer> SelectPositionList = new ArrayList<Integer>();
 	private MiboMgr miboMgr;
 	private BmobUserManager userManager;
-	
+	private MenuItem seleteAllItem,deleteItem;
+	@SuppressWarnings("unused")
 	private Handler mHandler = new Handler(){
 
 		@Override
@@ -119,6 +121,15 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 		miboMgr = new MiboMgr(this);
 		userManager = BmobUserManager.getInstance(this);
 		initView();
+	}
+	
+	private void DecideShowOrHide(){
+		seleteAllItem.setVisible(false);
+		deleteItem.setVisible(false);
+		/*if(isMiboOrComment){
+			seleteAllItem.setVisible(false);
+			deleteItem.setVisible(false);
+		}*/
 	}
 
 	private void initView(){
@@ -199,6 +210,9 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.edit_my_mibo, menu);
+		seleteAllItem = menu.findItem(R.id.allselect);
+		deleteItem = menu.findItem(R.id.confirm);
+		DecideShowOrHide();
 		return true;
 	}
 
@@ -210,15 +224,15 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 		int id = item.getItemId();
 		if (id == R.id.allselect) {
 			ShowToast.showShortToast(this, "全选");
-			selectAll();
+//			selectAll();
 			return true;
 		}else if(id == R.id.confirm){
 			ShowToast.showShortToast(this, "删除");
-			if(isMiboOrComment){
+			/*if(isMiboOrComment){
 				deleteMiboData();
 			}else{
 				deleteCommentData();
-			}
+			}*/
 			return true;
 		}else if(id == R.id.home){
 			finish();
@@ -228,7 +242,10 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	}
 
 	private View childView;
-	private void selectAll(){
+	/*private void selectAll(){
+		if(isMiboOrComment) {
+			return;
+		}
 		int size = mListView.getChildCount();
 		selectAllFlag = !selectAllFlag;
 		int firstVisblePosition = mListView.getFirstVisiblePosition();
@@ -242,14 +259,16 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 				}
 			}
 		}
-	}
+	}*/
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		// TODO Auto-generated method stub
+		/*if(isMiboOrComment)
+			return;
 		checkbox = (CheckBox) mListView.getChildAt(position).findViewById(R.id.checkBox1);
-		checkbox.setChecked(!checkbox.isChecked());
+		checkbox.setChecked(!checkbox.isChecked());*/
 	}
 	
 	private void findata(){
@@ -315,7 +334,7 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 		}
 	}
 	
-	private List<Mibos> checkSelectMibo(){
+	/*private List<Mibos> checkSelectMibo(){
 		SelectPositionList.clear();
 		List<Mibos>deleteMibos = new ArrayList<Mibos>();
 		int size = mListView.getChildCount();
@@ -335,9 +354,9 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 			}
 		}
 		return deleteMibos;
-	}
+	}*/
 	
-	private List<MiboComment> checkSelectComment(){
+	/*private List<MiboComment> checkSelectComment(){
 		SelectPositionList.clear();
 		List<MiboComment>deleteComments = new ArrayList<MiboComment>();
 		int size = mListView.getChildCount();
@@ -358,9 +377,9 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 		}
 		return deleteComments;
 	
-	}
+	}*/
 	
-	private void deleteMiboData(){
+	/*private void deleteMiboData(){
 		List<Mibos>deleteMibos = checkSelectMibo();
 		miboMgr.deleteselectMibo(deleteMibos, new DeleteMiboListener() {
 			
@@ -379,7 +398,7 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 				+"code"+code+" error:"+error);
 			}
 		});
-	}
+	}*/
 	
 	private void deletelocalMiboData(){
 		int i = SelectPositionList.size()-1;
@@ -390,7 +409,7 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 	}
 	
 	
-	private void deleteCommentData(){
+	/*private void deleteCommentData(){
 		List<MiboComment>commentList = checkSelectComment();
 		miboMgr.deleteSelectComment(commentList, new DeleteMiboListener() {
 			
@@ -410,7 +429,7 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 			}
 		});
 	
-	}
+	}*/
 	
 	private void deletelocalCommentData(){
 		int i = SelectPositionList.size()-1;
@@ -446,5 +465,6 @@ public class EditMyMiboActivity extends ActionBarActivity implements IXListViewL
 		Log.i(LogTag, "执行加载更多操作");
 		findata();
 	}
+
 
 }

@@ -71,7 +71,8 @@ public class MiboMgr {
 			@Override
 			public void onSuccess() {
 				// TODO Auto-generated method stub
-				removeMiboToUser(mibo,deleteMiboListener);
+				deleteMiboListener.onSucess();
+//				removeMiboToUser(mibo,deleteMiboListener);
 			}
 			
 			@Override
@@ -105,9 +106,9 @@ public class MiboMgr {
 		});
 	}
 	
-	public void removeMiboToUser(Mibos mibo,final DeleteMiboListener deleteMiboListener){
+	private void removeMiboToUser(Mibos mibo,final DeleteMiboListener deleteMiboListener){
 		if(TextUtils.isEmpty(mibo.getObjectId())
-	||TextUtils.isEmpty(((User)User.getCurrentUser(context)).getObjectId())){
+	||TextUtils.isEmpty((User.getCurrentUser(context)).getObjectId())){
 			ShowToast.showShortToast(context, "当前秘博或用户ObjectId为空,不能删除");
 			return;
 		}
@@ -218,6 +219,28 @@ public class MiboMgr {
 			}
 		});
 	}
+	
+	public void removeComment(MiboComment comment,final DeleteMiboListener deleteMiboListener){
+		if(TextUtils.isEmpty(comment.getObjectId())){
+			ShowToast.showShortToast(context, "当前评论对象的objectId为空!");
+			return;
+		}
+		comment.delete(context, new DeleteListener() {
+			
+			@Override
+			public void onSuccess() {
+				// TODO Auto-generated method stub
+				deleteMiboListener.onSucess();
+			}
+			
+			@Override
+			public void onFailure(int arg0, String arg1) {
+				// TODO Auto-generated method stub
+				deleteMiboListener.onFailure(arg0, arg1);
+			}
+		});
+	}
+	
 	public void removeCommentFromMibo(MiboComment comment,Mibos mibo){
 		if(TextUtils.isEmpty(mibo.getObjectId())||
 				TextUtils.isEmpty(comment.getObjectId())){

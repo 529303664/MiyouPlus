@@ -263,7 +263,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	}
 
 	private void initAdpter() {
-		getItems();
+//		getItems();
 		miBoAdapter = new MiBoAdapter(getActivity(), Mibos, miboMgr);
 		mListView.setAdapter(miBoAdapter);
 	}
