@@ -3,11 +3,6 @@ package com.luluandroid.miyouplus.bean;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.luluandroid.miyouplus.R;
-import com.luluandroid.miyouplus.config.BmobConstants;
-
-import android.graphics.Bitmap;
 import cn.bmob.v3.BmobObject;
 import cn.bmob.v3.datatype.BmobFile;
 import cn.bmob.v3.datatype.BmobRelation;
@@ -22,8 +17,9 @@ public class Mibos extends BmobObject implements Serializable {
 	private String headUserName;//*用户名
 	private String content;//*秘博的内容
 	private Integer favorCount;//*秘博的赞数
-	private String fromUserId;//发送秘博的用户ObjectId
+	private String fromUserId;//*发送秘博的用户ObjectId
 	private Integer CommentCount;//*秘博的评论数
+	private String tag;//*标签
 	private boolean isOpentoAll;//判断秘博是否对可以聊天
 	private boolean isCommentOk;//判断秘博是否可以评论
 	private MessageType type;//判断秘博是否包含图片, 默认不包含图片
@@ -42,12 +38,13 @@ public class Mibos extends BmobObject implements Serializable {
 	}
 
 	// 默认的用的构造
-	public Mibos(String headUserName,String content, Integer favorCount,String fromUserId) {
+	public Mibos(String headUserName,String content, Integer favorCount,String fromUserId,String tag) {
 		super();
 		this.headUserName = headUserName;
 		this.content = content;
 		this.favorCount = favorCount;
 		this.fromUserId = fromUserId;
+		this.tag = tag;
 		this.CommentCount = 0;
 		this.isOpentoAll = true;
 		this.isCommentOk = true;
@@ -269,4 +266,14 @@ public class Mibos extends BmobObject implements Serializable {
 			}
 		}
 	}
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+	
+	
 }

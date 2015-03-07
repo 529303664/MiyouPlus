@@ -26,6 +26,7 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -68,6 +69,7 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 	
 	private TextView title,miboTimeTextView,miboConTextView,mibofavorTextView,miboCommentTextView
 	,miboContactTextView,tiezi_favor_img_count;
+	private Button tagBtn;
 	private EditTextWithEmojiBtn myMessageEditext;
 	private ImageView sendMiboImageView,miboPicImageView;
 	private ImageView[] imageHead = new ImageView[9];
@@ -147,6 +149,7 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 	private void initCompontView(){
 		scrollView = (ScrollView)findViewById(R.id.mibodetail_scrollView1);
 		miboTimeTextView = (TextView)findViewById(R.id.tiezi_head_time);
+		tagBtn = (Button)findViewById(R.id.tiezi_head_tag);
 		miboConTextView = (TextView)findViewById(R.id.tiezi_content);
 		mibofavorTextView = (TextView)findViewById(R.id.tiezi_bottom_favor);
 		miboContactTextView = (TextView)findViewById(R.id.tiezi_bottom_mi_contact);
@@ -401,7 +404,7 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 		List<MiboComment> mbcList = new ArrayList<MiboComment>();
 		MiboComment mibosComment;
 		for(int i = 0;i<9;i++){
-			mibosComment = new MiboComment(selectedMibo, "ÍÛ¹þ¹þ1", userManager.getCurrentUserName(),userManager.getCurrentUserObjectId());
+			mibosComment = new MiboComment(selectedMibo, "ÍÛ¹þ¹þ1", userManager.getCurrentUserName(),userManager.getCurrentUserObjectId(),selectedMibo.getFromUserId());
 			mbcList.add(mibosComment);
 		}
 		
@@ -443,6 +446,7 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 			Log.i(logTag, "¶ÁÈ¡µÄ¿ÉÐòÁÐ»¯ÃØ²©Îª¿Õ");
 			return;
 		}
+		tagBtn.setText(selectedMibo.getTag().toString());
 		miboTimeTextView.setText(selectedMibo.getCreatedAt());
 		miboConTextView.setText(selectedMibo.getContent());
 		mibofavorTextView.setText(selectedMibo.getFavorCount().toString());

@@ -35,6 +35,23 @@
         android:layout_marginLeft="10.0dip"
         android:layout_marginRight="10.0dip"
         android:layout_marginTop="10.0dip"
-        android:text="@string/time" />
+        android:maxLength="10"
+        android:text="@string/time"
+         />
+
+    <Button
+        android:id="@+id/tiezi_head_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/tiezi_head_username"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_toLeftOf="@+id/tiezi_head_time"
+        android:layout_toRightOf="@+id/tiezi_head_username"
+        android:background="@drawable/tiezi_tag_dark_gray"
+        android:gravity="center_horizontal"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="@color/white" />
 
 </RelativeLayout>

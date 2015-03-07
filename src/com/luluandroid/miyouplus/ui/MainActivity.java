@@ -170,6 +170,10 @@ public class MainActivity extends ActivityBase implements EventListener{
 			iv_miquan_tips.setVisibility(View.INVISIBLE);
 		}
 	}
+	
+	public Fragment getFragment(int position){
+		return fragments[position];
+	}
 
 	@Override
 	protected void onResume() {

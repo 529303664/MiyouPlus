@@ -18,6 +18,7 @@ public  class TieZiSchema implements  BaseColumns,TableCreateInterface{
 	public static final String COLUMN_USER="user";
 	public static final String COLUMN_USER_ID="userid";
 	public static final String COLUMN_CONTENT="content";
+	public static final String COLUMN_TAG="tag";
 	public static final String COLUMN_FAVOR="favors";
 	public static final String COLUMN_COMCOUNT="comentcount";
 	public static final String COLUMN_PARENT_ID="parentid";
@@ -46,6 +47,7 @@ public  class TieZiSchema implements  BaseColumns,TableCreateInterface{
 				+ TieZiSchema.COLUMN_USER + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_USER_ID + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_CONTENT + TEXT_TYPE + COMMA_SEP
+				+ TieZiSchema.COLUMN_TAG + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_FAVOR + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_COMCOUNT + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_PARENT_ID+TEXT_TYPE+ COMMA_SEP

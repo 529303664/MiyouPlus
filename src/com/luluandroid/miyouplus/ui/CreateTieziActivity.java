@@ -77,7 +77,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	private ProgressBar progressBar;
 	private FrameLayout navigationFrameLayout;
 	private ImageView navigationLfBt, navigationRtBt, imageBackgroud;
-	private EditText myMessageEditext;
+	private EditText myMessageEditext,myTagEditText;
 	private TextView emotionText;
 	private CheckBox contactCheckBox,CommentCheckBox;
 	private boolean NvIsOpen;// 分别是判断导航是否开启和处理图片的Asynctask是否正在运行
@@ -115,6 +115,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		progressBar = (ProgressBar) findViewById(R.id.create_tiezi_progressBar1);
 		imageBackgroud = (ImageView) findViewById(R.id.create_tiezi_imageview1);
 		myMessageEditext = (EditText) findViewById(R.id.create_tiezi_input_editext);
+		myTagEditText = (EditText) findViewById(R.id.create_tiezi_tag_edittext);
 		emotionText = (TextView) findViewById(R.id.create_tiezi_emotions);
 		contactCheckBox = (CheckBox)findViewById(R.id.create_tiezi_contact_checkbox);
 		CommentCheckBox = (CheckBox)findViewById(R.id.create_tiezi_comment_checkbox);
@@ -251,6 +252,9 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		int id = item.getItemId();
 		switch (id) {
 		case R.id.action_create_tiezi_write:
+			if(!checkTagFinish()){
+				return super.onOptionsItemSelected(item);
+			}
 			// 数据发送
 			myHandler.sendEmptyMessage(ChannelCodes.DIALOG_SHOW);
 			 saveAll();
@@ -391,6 +395,14 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		this.picchange = picchange;
 	}
 
+	private boolean checkTagFinish(){
+		if(TextUtils.isEmpty(myTagEditText.getText().toString().trim())){
+			ShowToast.showShortToast(this, "标签不能为空！！");
+			return false;
+		}
+		return true;
+	}
+	
 	private void saveAll() {
 		Mibos mibo = saveMibo();
 		saveToNetWork(mibo);
@@ -481,7 +493,7 @@ public class CreateTieziActivity extends ActionBarActivity implements
 
 	private Mibos saveMibo() {
 		Mibos mibo = new Mibos(BmobUser.getCurrentUser(this).getUsername(),
-				myMessageEditext.getText().toString(), Integer.valueOf("0"),((User) userManager.getCurrentUser(User.class)).getObjectId());
+				myMessageEditext.getText().toString(), Integer.valueOf("0"),((User) userManager.getCurrentUser(User.class)).getObjectId(),myTagEditText.getText().toString().trim());
 		mibo.setMyUser((User) userManager.getCurrentUser(User.class));
 		mibo.setOpentoAll(contactCheckBox.isChecked());
 		mibo.setCommentOk(CommentCheckBox.isChecked());

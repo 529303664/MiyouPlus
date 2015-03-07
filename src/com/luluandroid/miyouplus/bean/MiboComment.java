@@ -9,18 +9,20 @@ public class MiboComment extends BmobObject {
 //	private String toUserName;//接受者姓名
 	private String fromUserName;//发送者姓名
 	private String fromUserId;//发送者Id
+	private String fromMiboUserId;//关联秘博userId
 	
 	public MiboComment() {
 		super();
 	}
 	
 	public MiboComment(Mibos miboParent, String content, String fromUserName,
-			String fromUserId) {
+			String fromUserId, String fromMiboUserId) {
 		super();
 		this.miboParent = miboParent;
 		this.content = content;
 		this.fromUserName = fromUserName;
 		this.fromUserId = fromUserId;
+		this.fromMiboUserId = fromMiboUserId;
 	}
 
 	public Mibos getMiboParent() {
@@ -58,5 +60,15 @@ public class MiboComment extends BmobObject {
 	public void setFromUserId(String fromUserId) {
 		this.fromUserId = fromUserId;
 	}
+
+	public String getFromMiboUserId() {
+		return fromMiboUserId;
+	}
+
+	public void setFromMiboUserId(String fromMiboUserId) {
+		this.fromMiboUserId = fromMiboUserId;
+	}
+	
+	
 	
 }

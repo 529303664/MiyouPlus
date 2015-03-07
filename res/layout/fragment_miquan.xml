@@ -10,6 +10,27 @@
         android:id="@+id/common_actionbar"
         layout="@layout/include_action_bar" />
 
+    <com.luluandroid.miyouplus.view.MySearchEditText
+        android:id="@+id/fragment_miquan_searchview"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_action_bar_height"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/base_edit_input"
+        android:drawableRight="@drawable/icon_msg_search"
+        android:drawablePadding="10dp"
+        android:hint="搜索…'找工作'  '吐槽'  '情感'"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:singleLine="true"
+        android:focusable="true"
+        android:visibility="gone"
+        >
+        <requestFocus />
+    </com.luluandroid.miyouplus.view.MySearchEditText>
+    
     <com.luluandroid.miyouplus.view.xlist.XListView
             android:id="@+id/fragment_miquan_listview"
             android:layout_width="fill_parent"

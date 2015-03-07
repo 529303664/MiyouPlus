@@ -174,7 +174,7 @@ public class MiboMgr {
 		if(TextUtils.isEmpty(content)){
 			return -1;
 		}
-		comment = new MiboComment(miboParent,content,fromUserName,fromUserId);
+		comment = new MiboComment(miboParent,content,fromUserName,fromUserId,miboParent.getFromUserId());
 		comment.save(context, new SaveListener() {
 			
 			@Override
@@ -295,8 +295,40 @@ public class MiboMgr {
 	
 	}
 	
+	/** 通过复合标签查询相关秘博
+	 * @param tag 标签
+	 * @param page 第几页
+	 * @param findMiboListener
+	 */
+	public void findTagRelatedMibo(List<String>tags,int page,final FindMiboListener findMiboListener){
+		BmobQuery<Mibos>query = new BmobQuery<Mibos>();
+		if(tags != null&&!tags.isEmpty()){
+			query.addWhereContainedIn("tag", tags);
+//			query.addWhereContainsAll("tag", tags);
+		}
+		query.setLimit(limit);
+		query.setSkip(page*limit);
+		query.order("-createdAt");
+		query.setCachePolicy(CachePolicy.IGNORE_CACHE);
+		query.findObjects(context, new FindListener<Mibos>() {
+
+			@Override
+			public void onError(int arg0, String arg1) {
+				// TODO Auto-generated method stub
+				findMiboListener.onFailure(arg0, arg1);
+			}
+
+			@Override
+			public void onSuccess(List<Mibos> mibosList) {
+				// TODO Auto-generated method stub
+				findMiboListener.onSuccess(mibosList);
+				
+			}
+		});
+	}
+	
 	/**
-	 * 选择缓存或者网络查询进行秘博查询
+	 * 选择网络查询进行秘博查询
 	 * @param CacheOrNetWork
 	 * @param NeworOld
 	 * @param time

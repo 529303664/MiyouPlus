@@ -128,6 +128,7 @@ public class DBMgr {
 				cv.put(TieZiSchema.COLUMN_CONTENT, mibo.getContent());
 				cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount());
 				cv.put(TieZiSchema.COLUMN_COMCOUNT, mibo.getCommentCount());
+				cv.put(TieZiSchema.COLUMN_TAG, mibo.getTag());
 				cv.put(TieZiSchema.COLUMN_PARENT_ID, mibo.getParentId());
 				cv.put(TieZiSchema.COLUMN_OPEN, mibo.isOpentoAll());
 				cv.put(TieZiSchema.COLUMN_FRCMOL, mibo.isCommentOk());
@@ -170,6 +171,7 @@ public class DBMgr {
 					cv.put(TieZiSchema.COLUMN_USER_ID, mibo.getFromUserId());
 					cv.put(TieZiSchema.COLUMN_CONTENT, mibo.getContent());
 					cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount());
+					cv.put(TieZiSchema.COLUMN_TAG, mibo.getTag());
 					cv.put(TieZiSchema.COLUMN_COMCOUNT, mibo.getCommentCount());
 					cv.put(TieZiSchema.COLUMN_PARENT_ID, mibo.getParentId());
 					cv.put(TieZiSchema.COLUMN_OPEN, mibo.isOpentoAll());
@@ -234,7 +236,8 @@ public class DBMgr {
 		while(c.moveToNext()){
 			Mibos mibo = new Mibos(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_USER)),
 					c.getString(c.getColumnIndex(TieZiSchema.COLUMN_CONTENT)),
-					c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_FAVOR)),c.getString(c.getColumnIndex(TieZiSchema.COLUMN_USER_ID)));
+					c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_FAVOR)),c.getString(c.getColumnIndex(TieZiSchema.COLUMN_USER_ID)),
+					c.getString(c.getColumnIndex(TieZiSchema.COLUMN_TAG)));
 			mibo.setObjectId(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_BMOB_ID)));
 			mibo.setParentId(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_PARENT_ID)));
 			if(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_OPEN))==1){

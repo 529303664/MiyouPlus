@@ -14,6 +14,7 @@ public class ChannelCodes {
 	public final static int UPDATEVIEW_FavorAnd_Comment_BG = 403;
 	public final static int UPDATEVIEW_Content_Text_Color = 404;
 	public final static int UPDATEVIEW_MYMIBOCOM_LISTVIEW = 405;
+	public final static int UPDATEVIEW_MIBO_TAG = 406;
 	public final static int SHOW_SELECTED_MIBO = 501;
 	public final static int SHOW_SELECTED_MIBO_WITH_COMMENT = 502;
 	

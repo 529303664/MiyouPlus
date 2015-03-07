@@ -1,6 +1,7 @@
 package com.luluandroid.miyouplus.ui.fragment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.app.Activity;
@@ -36,6 +37,7 @@ import com.luluandroid.miyouplus.config.ChannelCodes;
 import com.luluandroid.miyouplus.control.MiboMgr;
 import com.luluandroid.miyouplus.control.MiboMgr.FindMiboListener;
 import com.luluandroid.miyouplus.extra.ShowToast;
+import com.luluandroid.miyouplus.interfaces.SearchAfterTouchListener;
 import com.luluandroid.miyouplus.ui.CreateTieziActivity;
 import com.luluandroid.miyouplus.ui.EditMyMiboActivity;
 import com.luluandroid.miyouplus.ui.FragmentBase;
@@ -43,6 +45,7 @@ import com.luluandroid.miyouplus.ui.LoginActivity;
 import com.luluandroid.miyouplus.ui.MainActivity;
 import com.luluandroid.miyouplus.ui.PopMenu;
 import com.luluandroid.miyouplus.util.TimeUtil;
+import com.luluandroid.miyouplus.view.MySearchEditText;
 import com.luluandroid.miyouplus.view.xlist.XListView;
 import com.luluandroid.miyouplus.view.xlist.XListView.IXListViewListener;
 import com.rockerhieu.emojicon.EmojiconGridFragment;
@@ -60,6 +63,8 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	private LocalBroadcastManager lbm;
 	private List<Mibos> Mibos;
 	private MiboMgr miboMgr;
+	private MySearchEditText mySearchEditText;
+	private List<String>tagList = new ArrayList<String>();
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -190,8 +195,26 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		initXListView();
 		initHeadLayout();
 		initAdpter();
+		initSearchView();
 	}
 
+	private void initSearchView(){
+		mySearchEditText = (MySearchEditText)findViewById(R.id.fragment_miquan_searchview);
+		mySearchEditText.setSearchAfterTouchListener(new SearchAfterTouchListener() {
+			
+			@Override
+			public void doSomeThing() {
+				// TODO Auto-generated method stub
+				tagList.clear();
+				ShowToast("搜索:"+mySearchEditText.getText().toString());
+				tagList.addAll(Arrays.asList(mySearchEditText.getText().toString().replaceAll("(\\s\\s)+", " ").split(" ")));
+				mySearchEditText.setText("");
+				showOrHideMySearchView();
+				loadLatestMibo();
+			}
+		});
+	}
+	
 	private void initXListView() {
 		mListView = (XListView) getActivity().findViewById(
 				R.id.fragment_miquan_listview);
@@ -206,7 +229,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 
 	private void initPopMenu() {
 		popMenu = new PopMenu(getActivity());
-		popMenu.addItems(new String[] { "发帖", "我的秘博", "我的评论" });
+		popMenu.addItems(new String[] { "发帖","发现","我的秘博", "我的评论" });
 		popMenu.setOnItemClickListener(new com.luluandroid.miyouplus.ui.PopMenu.OnItemClickListener() {
 
 			@Override
@@ -217,10 +240,14 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 					linkToNewMibo();
 					break;
 				case 1:
-					linkToMyMiboOrComment(true);
+					showOrHideMySearchView();
 					break;
 				case 2:
+					linkToMyMiboOrComment(true);
+					break;
+				case 3:
 					linkToMyMiboOrComment(false);
+					break;
 				default:
 					break;
 				}
@@ -284,6 +311,21 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 			lbm.unregisterReceiver(mFragmentAllMiboReceiver);
 	}
 
+	public void addMySearchViewContent(String content){
+		mySearchEditText.setText(content+"  "+mySearchEditText.getText().toString());
+		if(mySearchEditText.getVisibility() == View.GONE){
+			mySearchEditText.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	private void showOrHideMySearchView(){
+		if(mySearchEditText.getVisibility()==View.GONE){
+			mySearchEditText.setVisibility(View.VISIBLE);
+		}else{
+			mySearchEditText.setVisibility(View.GONE);
+		}
+	}
+	
 	private void linkToMyMiboOrComment(boolean miboOrComment) {
 		Intent intent = new Intent(getActivity(), EditMyMiboActivity.class);
 		Bundle bundle = new Bundle();
@@ -349,12 +391,17 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	public void onRefresh() {
 		// TODO Auto-generated method stub
 		// 测试
+		startloadAllLatestMibo();
+	}
+	
+	private void startloadAllLatestMibo(){
+		tagList.clear();
 		loadLatestMibo();
 	}
-
+	
 	private void loadLatestMibo() {
 		curPage = 0;
-		miboMgr.findNetWorkMibo(curPage, new FindMiboListener() {
+		miboMgr.findTagRelatedMibo(tagList,curPage, new FindMiboListener() {
 
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
@@ -386,8 +433,13 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		});
 	}
 
+	private void startloadAllOldMibo(){
+		tagList.clear();
+		loadOldMibo();
+	}
+	
 	private void loadOldMibo() {
-		miboMgr.findNetWorkMibo(curPage, new FindMiboListener() {
+		miboMgr.findTagRelatedMibo(tagList,curPage, new FindMiboListener() {
 
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
@@ -421,8 +473,12 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	@Override
 	public void onLoadMore() {
 		// TODO Auto-generated method stub
-		// 测试
-		loadOldMibo();
+		if(tagList == null || tagList.isEmpty()){
+			startloadAllOldMibo();
+		}
+		else{
+			loadOldMibo();
+		}
 	}
 
 }

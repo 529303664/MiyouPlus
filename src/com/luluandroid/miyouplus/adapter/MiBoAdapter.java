@@ -25,6 +25,7 @@ import com.luluandroid.miyouplus.ui.ChatActivity;
 import com.luluandroid.miyouplus.ui.MainActivity;
 import com.luluandroid.miyouplus.ui.MiboDetailActivity;
 import com.luluandroid.miyouplus.ui.fragment.FragmentImageMould;
+import com.luluandroid.miyouplus.ui.fragment.MiQuanFragment;
 import com.luluandroid.miyouplus.util.ImageLoadOptions;
 import com.luluandroid.miyouplus.view.xlist.XListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -43,6 +44,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
@@ -85,11 +87,25 @@ public class MiBoAdapter extends BaseAdapter {
 				case ChannelCodes.UPDATEVIEW_Content_Text_Color:
 					handleContentTC(msg);
 					break;
+				case ChannelCodes.UPDATEVIEW_MIBO_TAG:
+					handleTagMsg(msg);
+					break;
 				default:
 					break;
 			}
 		}
 	};
+	
+	private void handleTagMsg(Message msg){
+		int index = msg.arg1;
+		int firstVisible = tiezi_ListView.getFirstVisiblePosition();
+		ViewHolder holder = (ViewHolder)(tiezi_ListView.getChildAt(index-firstVisible+1).getTag());
+		if(holder != null){
+			((MiQuanFragment)((MainActivity)context).getFragment(3)).addMySearchViewContent(holder.tagButton.getText().toString());
+		}else{
+			Log.i("MiboAdapter", "tiezi_ListView.getChildAt(index-firstVisible).getTag() 为空！");
+		}
+	}
 	
 	private void handleContentTC(Message msg){
 		int index = msg.arg1;
@@ -211,6 +227,7 @@ public class MiBoAdapter extends BaseAdapter {
 			convertView = mLayoutInflater.inflate(R.layout.tiezi_item, null);
 			viewHolder.mImageView = (ImageView)convertView.findViewById(R.id.tiezi_head_imageview);
 			viewHolder.headUserName = (TextView)convertView.findViewById(R.id.tiezi_head_username);
+			viewHolder.tagButton = (Button)convertView.findViewById(R.id.tiezi_head_tag);
 			viewHolder.tiezi_time = (TextView)convertView.findViewById(R.id.tiezi_head_time);
 			viewHolder.bgImageView = (ImageView)convertView.findViewById(R.id.tiezi_imageview1);
 			viewHolder.ConTextView = (EmojiconTextView)convertView.findViewById(R.id.tiezi_content);
@@ -238,6 +255,7 @@ public class MiBoAdapter extends BaseAdapter {
 		viewHolder.ConTextView.setText(((Mibos)mMibos.get(position)).getContent());
 		viewHolder.favor.setText(((Mibos)mMibos.get(position)).getFavorCount().toString());
 		viewHolder.tiezi_time.setText(((Mibos)mMibos.get(position)).getCreatedAt());
+		viewHolder.tagButton.setText(((Mibos)mMibos.get(position)).getTag());
 		viewHolder.mi_comment.setText(((Mibos)mMibos.get(position)).getCommentCount().toString());
 		if(((Mibos)mMibos.get(position)).getType()== MessageType.TEXT){
 			viewHolder.bgImageView.setImageDrawable(context.getResources().getDrawable(FragmentImageMould.mBackGroundIds[((Mibos)mMibos.get(position)).getPicResourceId()]));
@@ -298,6 +316,16 @@ public class MiBoAdapter extends BaseAdapter {
 				}
 			});
 		}
+		
+		viewHolder.tagButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Message msg = mHandler.obtainMessage(ChannelCodes.UPDATEVIEW_MIBO_TAG, position, 0);
+				mHandler.sendMessage(msg);
+			}
+		});
 		
 		viewHolder.mi_contact.setOnClickListener(new OnClickListener() {
 			
@@ -537,6 +565,7 @@ public class MiBoAdapter extends BaseAdapter {
 		public EmojiconTextView ConTextView;
 		public TextView favor,mi_contact,mi_comment;
 		public ImageView[] imageHead = new ImageView[9];
+		public Button tagButton;
 	}
 	
 }

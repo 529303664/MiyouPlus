@@ -44,7 +44,7 @@ public class ShowMyComAdapter extends BaseListAdapter<MiboComment> {
 		TextView contentTextView = ViewHolder.get(convertView, R.id.show_mycomment_content);
 		ImageView headImageView = ViewHolder.get(convertView, R.id.show_mycomment_head_imageview);
 		flortextView.setText(position+1+"Â¥");
-		if(getList().get(position).getFromUserId().equals(getList().get(position).getMiboParent().getFromUserId())){
+		if(getList().get(position).getFromUserId().equals(getList().get(position).getFromMiboUserId())){
 			flortextView.setText("Â¥Ö÷");
 			flortextView.setTextColor(mContext.getResources().getColor(R.color.color_bottom_text_press));
 		}
