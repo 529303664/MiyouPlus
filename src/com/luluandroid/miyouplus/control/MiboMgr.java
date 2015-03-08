@@ -304,7 +304,6 @@ public class MiboMgr {
 		BmobQuery<Mibos>query = new BmobQuery<Mibos>();
 		if(tags != null&&!tags.isEmpty()){
 			query.addWhereContainedIn("tag", tags);
-//			query.addWhereContainsAll("tag", tags);
 		}
 		query.setLimit(limit);
 		query.setSkip(page*limit);

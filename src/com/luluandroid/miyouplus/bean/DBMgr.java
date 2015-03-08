@@ -129,12 +129,10 @@ public class DBMgr {
 				cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount());
 				cv.put(TieZiSchema.COLUMN_COMCOUNT, mibo.getCommentCount());
 				cv.put(TieZiSchema.COLUMN_TAG, mibo.getTag());
-				cv.put(TieZiSchema.COLUMN_PARENT_ID, mibo.getParentId());
 				cv.put(TieZiSchema.COLUMN_OPEN, mibo.isOpentoAll());
 				cv.put(TieZiSchema.COLUMN_FRCMOL, mibo.isCommentOk());
 				cv.put(TieZiSchema.COLUMN_PIC_NAME, mibo.getLocalPicName());
 				cv.put(TieZiSchema.COLUMN_PIC_RES_ID, mibo.getPicResourceId());
-				cv.put(TieZiSchema.COLUMN_MESSAGE_TYPE, mibo.getType().name());
 				if(mibo.getUpdatedAt() == null){
 					cv.put(TieZiSchema.COLUMN_MESSAGE_TIME, TimeUtil.stringToLong(mibo.getCreatedAt(), TimeUtil.FORMAT_DATE_TIME2));
 				}else{
@@ -173,12 +171,10 @@ public class DBMgr {
 					cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount());
 					cv.put(TieZiSchema.COLUMN_TAG, mibo.getTag());
 					cv.put(TieZiSchema.COLUMN_COMCOUNT, mibo.getCommentCount());
-					cv.put(TieZiSchema.COLUMN_PARENT_ID, mibo.getParentId());
 					cv.put(TieZiSchema.COLUMN_OPEN, mibo.isOpentoAll());
 					cv.put(TieZiSchema.COLUMN_FRCMOL, mibo.isCommentOk());
 					cv.put(TieZiSchema.COLUMN_PIC_NAME, mibo.getLocalPicName());
 					cv.put(TieZiSchema.COLUMN_PIC_RES_ID, mibo.getPicResourceId());
-					cv.put(TieZiSchema.COLUMN_MESSAGE_TYPE, mibo.getType().name());
 					if(mibo.getUpdatedAt() == null){
 						cv.put(TieZiSchema.COLUMN_MESSAGE_TIME, TimeUtil.stringToLong(mibo.getCreatedAt(), TimeUtil.FORMAT_DATE_TIME2));
 					}else{
@@ -220,63 +216,6 @@ public class DBMgr {
 		String sql = "DELETE FROM "+TieZiSchema.TABLE_NAME+";";
 		db.execSQL(sql);
 		return true;
-	}
-
-	/**
-	 * @param parentId parentId 当为-1时，代表查询父贴，否则查询为某parentId下的评论
-	 * @return
-	 */
-	public List<Mibos>queryRelatedTiezi(String parentId){
-		Cursor c = queryTheCursorRelatedTiezi(parentId);
-		
-		if(c == null || c.getCount()<=0){
-			return null;
-		}
-		List<Mibos> miboList = new ArrayList<Mibos>();
-		while(c.moveToNext()){
-			Mibos mibo = new Mibos(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_USER)),
-					c.getString(c.getColumnIndex(TieZiSchema.COLUMN_CONTENT)),
-					c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_FAVOR)),c.getString(c.getColumnIndex(TieZiSchema.COLUMN_USER_ID)),
-					c.getString(c.getColumnIndex(TieZiSchema.COLUMN_TAG)));
-			mibo.setObjectId(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_BMOB_ID)));
-			mibo.setParentId(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_PARENT_ID)));
-			if(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_OPEN))==1){
-				mibo.setOpentoAll(true);
-			}else{
-				mibo.setOpentoAll(false);
-			}
-			if(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_FRCMOL))==1){
-				mibo.setCommentOk(true);
-			}else{
-				mibo.setCommentOk(false);
-			}
-			mibo.setLocalPicName(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_PIC_NAME)));
-			mibo.setPicResourceId(c.getInt(c.getColumnIndex(TieZiSchema.COLUMN_PIC_RES_ID)));
-			/*if(c.getString(c.getColumnIndex(TieZiSchema.COLUMN_MESSAGE_TYPE)).equals("TEXT")){
-				mibo.setType(MessageType.TEXT);
-			}else{
-				mibo.setType(MessageType.TEXTANDPICTURE);
-			}*/
-			mibo.setTableName(TieZiSchema.TABLE_NAME);
-			miboList.add(mibo);
-		}
-		c.close();
-		return miboList;
-	}
-	
-	
-	/**
-	 * @param parentId 当为-2时，表示查询全部;当为-1时，代表查询父贴;否则查询为某parentId下的评论
-	 * @return
-	 */
-	public Cursor queryTheCursorRelatedTiezi(String parentId){
-		Cursor c;
-		if(parentId.equals("-2")){
-			c = db.rawQuery("select * from "+TieZiSchema.TABLE_NAME, null);
-		}
-		c = db.rawQuery("select * from "+TieZiSchema.TABLE_NAME+
-				" where "+TieZiSchema.COLUMN_PARENT_ID+" = ?"+" order by "+TieZiSchema.COLUMN_MESSAGE_TIME, new String[]{parentId});
-		return c;
 	}
 	
 }

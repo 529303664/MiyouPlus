@@ -21,7 +21,7 @@
         android:background="@drawable/base_edit_input"
         android:drawableRight="@drawable/icon_msg_search"
         android:drawablePadding="10dp"
-        android:hint="搜索…'找工作'  '吐槽'  '情感'"
+        android:hint="搜索'找工作'  '吐槽'  '情感'……"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:singleLine="true"

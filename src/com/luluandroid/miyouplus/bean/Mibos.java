@@ -22,8 +22,6 @@ public class Mibos extends BmobObject implements Serializable {
 	private String tag;//*标签
 	private boolean isOpentoAll;//判断秘博是否对可以聊天
 	private boolean isCommentOk;//判断秘博是否可以评论
-	private MessageType type;//判断秘博是否包含图片, 默认不包含图片
-	private int parentId;//秘博的父ObjectId（Bmob）-1 代表为根贴
 	private BmobFile pic;//秘博的网络图片对象
 	private String localPicName;//如果秘博有图片，则为该秘博的图片名称，否则为空
 	private BmobRelation Comments;
@@ -48,8 +46,6 @@ public class Mibos extends BmobObject implements Serializable {
 		this.CommentCount = 0;
 		this.isOpentoAll = true;
 		this.isCommentOk = true;
-		this.type = MessageType.TEXT;
-		this.parentId = -1;
 		this.pic = null;
 		this.localPicName = null;
 		this.zanMan = new ArrayList<String>();
@@ -94,21 +90,6 @@ public class Mibos extends BmobObject implements Serializable {
 
 	public void setCommentCount(Integer commentCount) {
 		CommentCount = commentCount;
-	}
-
-	/**
-	 * @return the parentId
-	 */
-	public int getParentId() {
-		return parentId;
-	}
-
-	/**
-	 * @param parentId
-	 *            the parentId to set
-	 */
-	public void setParentId(int parentId) {
-		this.parentId = parentId;
 	}
 
 	/**
@@ -187,21 +168,6 @@ public class Mibos extends BmobObject implements Serializable {
 	}
 
 	/**
-	 * @return the type
-	 */
-	public MessageType getType() {
-		return type;
-	}
-
-	/**
-	 * @param type
-	 *            the type to set
-	 */
-	public void setType(MessageType type) {
-		this.type = type;
-	}
-
-	/**
 	 * @return the headUserName
 	 */
 	public String getHeadUserName() {
@@ -223,7 +189,6 @@ public class Mibos extends BmobObject implements Serializable {
 		this.PicResourceId = picResourceId;
 		if(this.PicResourceId != -1){
 			setLocalPicName(null);
-			setType(MessageType.TEXT);
 		}
 	}
 
@@ -235,7 +200,6 @@ public class Mibos extends BmobObject implements Serializable {
 		this.localPicName = localPicName;
 		if(this.localPicName != null){
 			setPicResourceId(-1);
-			setType(MessageType.TEXTANDPICTURE);
 		}
 	}
 

@@ -21,12 +21,10 @@ public  class TieZiSchema implements  BaseColumns,TableCreateInterface{
 	public static final String COLUMN_TAG="tag";
 	public static final String COLUMN_FAVOR="favors";
 	public static final String COLUMN_COMCOUNT="comentcount";
-	public static final String COLUMN_PARENT_ID="parentid";
 	public static final String COLUMN_OPEN="open";
 	public static final String COLUMN_FRCMOL="friendcomentonly";
 	public static final String COLUMN_PIC_NAME="picname";
 	public static final String COLUMN_PIC_RES_ID="picresid";
-	public static final String COLUMN_MESSAGE_TYPE="messagetype";
 	public static final String COLUMN_MESSAGE_TIME="messagetime";
 	
 	private TieZiSchema(){}
@@ -50,12 +48,10 @@ public  class TieZiSchema implements  BaseColumns,TableCreateInterface{
 				+ TieZiSchema.COLUMN_TAG + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_FAVOR + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_COMCOUNT + TEXT_TYPE + COMMA_SEP
-				+ TieZiSchema.COLUMN_PARENT_ID+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_OPEN+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_FRCMOL+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_PIC_NAME+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_PIC_RES_ID+TEXT_TYPE+ COMMA_SEP
-				+ TieZiSchema.COLUMN_MESSAGE_TYPE+TEXT_TYPE+ COMMA_SEP
 				+ TieZiSchema.COLUMN_MESSAGE_TIME+TEXT_TYPE
 				+" )";
 		db.execSQL(tablesql);

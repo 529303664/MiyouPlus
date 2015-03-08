@@ -454,7 +454,7 @@ public class MiboDetailActivity extends ActivityBase implements IXListViewListen
 		
 		miboCommentTextView.setClickable(selectedMibo.isCommentOk());
 		
-		if(selectedMibo.getType()== MessageType.TEXT){
+		if(null==selectedMibo.getLocalPicName()){
 			miboPicImageView.setImageDrawable(getResources().getDrawable(FragmentImageMould.mBackGroundIds[selectedMibo.getPicResourceId()]));
 			if(selectedMibo.getPicResourceId() == 0){
 				miboConTextView.setTextColor(getResources().getColor(R.color.black));

@@ -257,7 +257,7 @@ public class MiBoAdapter extends BaseAdapter {
 		viewHolder.tiezi_time.setText(((Mibos)mMibos.get(position)).getCreatedAt());
 		viewHolder.tagButton.setText(((Mibos)mMibos.get(position)).getTag());
 		viewHolder.mi_comment.setText(((Mibos)mMibos.get(position)).getCommentCount().toString());
-		if(((Mibos)mMibos.get(position)).getType()== MessageType.TEXT){
+		if(null==((Mibos)mMibos.get(position)).getLocalPicName()){
 			viewHolder.bgImageView.setImageDrawable(context.getResources().getDrawable(FragmentImageMould.mBackGroundIds[((Mibos)mMibos.get(position)).getPicResourceId()]));
 			/*if(((Mibos)mMibos.get(position)).getPicResourceId() == 0){
 				viewHolder.ConTextView.setTextColor(context.getResources().getColor(R.color.black));
