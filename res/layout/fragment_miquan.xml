@@ -31,6 +31,12 @@
         <requestFocus />
     </com.luluandroid.miyouplus.view.MySearchEditText>
     
+    <include 
+        layout="@layout/include_fragment_miquan_recovery"
+        android:id="@+id/fragment_miquan_recovery_layout"
+        android:visibility="gone"
+        />
+    
     <com.luluandroid.miyouplus.view.xlist.XListView
             android:id="@+id/fragment_miquan_listview"
             android:layout_width="fill_parent"

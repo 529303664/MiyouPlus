@@ -23,8 +23,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.bmob.im.BmobUserManager;
@@ -64,7 +66,10 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	private List<Mibos> Mibos;
 	private MiboMgr miboMgr;
 	private MySearchEditText mySearchEditText;
-	private List<String>tagList = new ArrayList<String>();
+	private Button miquan_recovery_btn1, miquan_recovery_btn2,
+			miquan_recovery_btn3, miquan_recovery_btn4;
+	private LinearLayout fragment_miquan_recovery_layout;
+	private List<String> tagList = new ArrayList<String>();
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -141,7 +146,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 			switch (msg.what) {
 			case ChannelCodes.MIBO_Find_SUCCESS:
 				ShowToast((String) msg.obj);
-				((MainActivity)getActivity()).setMiquanTipsVisble(false);
+				((MainActivity) getActivity()).setMiquanTipsVisble(false);
 				AfterLoaded();
 				break;
 			case ChannelCodes.MIBO_Find_FAILURE:
@@ -196,25 +201,86 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		initHeadLayout();
 		initAdpter();
 		initSearchView();
+		initSearchLayout();
 	}
 
-	private void initSearchView(){
-		mySearchEditText = (MySearchEditText)findViewById(R.id.fragment_miquan_searchview);
-		mySearchEditText.setSearchAfterTouchListener(new SearchAfterTouchListener() {
-			
+	private void initSearchView() {
+		mySearchEditText = (MySearchEditText) findViewById(R.id.fragment_miquan_searchview);
+		mySearchEditText
+				.setSearchAfterTouchListener(new SearchAfterTouchListener() {
+
+					@Override
+					public void doSomeThing() {
+						// TODO Auto-generated method stub
+						tagList.clear();
+						ShowToast("搜索:" + mySearchEditText.getText().toString());
+						tagList.addAll(Arrays.asList(mySearchEditText.getText()
+								.toString().replaceAll("(\\s\\s)+", " ")
+								.split(" ")));
+						mySearchEditText.setText("");
+						showOrHideMySearchView();
+						loadLatestMibo();
+					}
+				});
+	}
+
+	private void initSearchLayout() {
+		fragment_miquan_recovery_layout = (LinearLayout) getActivity()
+				.findViewById(R.id.fragment_miquan_recovery_layout);
+		miquan_recovery_btn1 = (Button) getActivity().findViewById(
+				R.id.miquan_recovery_btn1);
+		miquan_recovery_btn2 = (Button) getActivity().findViewById(
+				R.id.miquan_recovery_btn2);
+		miquan_recovery_btn3 = (Button) getActivity().findViewById(
+				R.id.miquan_recovery_btn3);
+		miquan_recovery_btn4 = (Button) getActivity().findViewById(
+				R.id.miquan_recovery_btn4);
+		miquan_recovery_btn1.setOnClickListener(new OnClickListener() {
+
 			@Override
-			public void doSomeThing() {
+			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				tagList.clear();
-				ShowToast("搜索:"+mySearchEditText.getText().toString());
-				tagList.addAll(Arrays.asList(mySearchEditText.getText().toString().replaceAll("(\\s\\s)+", " ").split(" ")));
-				mySearchEditText.setText("");
-				showOrHideMySearchView();
+				tagList.add(miquan_recovery_btn1.getText().toString().substring(1).trim());
 				loadLatestMibo();
+				showOrHideMySearchView();
+			}
+		});
+		miquan_recovery_btn2.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				tagList.clear();
+				tagList.add(miquan_recovery_btn2.getText().toString().substring(1).trim());
+				loadLatestMibo();
+				showOrHideMySearchView();
+			}
+		});
+		miquan_recovery_btn3.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				tagList.clear();
+				tagList.add(miquan_recovery_btn3.getText().toString().substring(1).trim());
+				loadLatestMibo();
+				showOrHideMySearchView();
+			}
+		});
+		miquan_recovery_btn4.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				tagList.clear();
+				tagList.add(miquan_recovery_btn4.getText().toString().substring(1).trim());
+				loadLatestMibo();
+				showOrHideMySearchView();
 			}
 		});
 	}
-	
+
 	private void initXListView() {
 		mListView = (XListView) getActivity().findViewById(
 				R.id.fragment_miquan_listview);
@@ -229,7 +295,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 
 	private void initPopMenu() {
 		popMenu = new PopMenu(getActivity());
-		popMenu.addItems(new String[] { "发帖","发现","我的秘博", "我的评论" });
+		popMenu.addItems(new String[] { "发帖", "发现", "我的秘博", "我的评论" });
 		popMenu.setOnItemClickListener(new com.luluandroid.miyouplus.ui.PopMenu.OnItemClickListener() {
 
 			@Override
@@ -286,11 +352,11 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 				mHandler.sendMessage(message);
 			}
 		});
-	
+
 	}
 
 	private void initAdpter() {
-//		getItems();
+		// getItems();
 		miBoAdapter = new MiBoAdapter(getActivity(), Mibos, miboMgr);
 		mListView.setAdapter(miBoAdapter);
 	}
@@ -311,21 +377,24 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 			lbm.unregisterReceiver(mFragmentAllMiboReceiver);
 	}
 
-	public void addMySearchViewContent(String content){
-		mySearchEditText.setText(content+"  "+mySearchEditText.getText().toString());
-		if(mySearchEditText.getVisibility() == View.GONE){
+	public void addMySearchViewContent(String content) {
+		mySearchEditText.setText(content + "  "
+				+ mySearchEditText.getText().toString());
+		if (mySearchEditText.getVisibility() == View.GONE) {
 			mySearchEditText.setVisibility(View.VISIBLE);
 		}
 	}
-	
-	private void showOrHideMySearchView(){
-		if(mySearchEditText.getVisibility()==View.GONE){
+
+	private void showOrHideMySearchView() {
+		if (mySearchEditText.getVisibility() == View.GONE) {
 			mySearchEditText.setVisibility(View.VISIBLE);
-		}else{
+			fragment_miquan_recovery_layout.setVisibility(View.VISIBLE);
+		} else {
 			mySearchEditText.setVisibility(View.GONE);
+			fragment_miquan_recovery_layout.setVisibility(View.GONE);
 		}
 	}
-	
+
 	private void linkToMyMiboOrComment(boolean miboOrComment) {
 		Intent intent = new Intent(getActivity(), EditMyMiboActivity.class);
 		Bundle bundle = new Bundle();
@@ -393,32 +462,32 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		// 测试
 		startloadAllLatestMibo();
 	}
-	
-	private void startloadAllLatestMibo(){
+
+	private void startloadAllLatestMibo() {
 		tagList.clear();
 		loadLatestMibo();
 	}
-	
+
 	private void loadLatestMibo() {
 		curPage = 0;
-		miboMgr.findTagRelatedMibo(tagList,curPage, new FindMiboListener() {
+		miboMgr.findTagRelatedMibo(tagList, curPage, new FindMiboListener() {
 
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
 				// TODO Auto-generated method stub
 				String successString;
-				if(mibosList.size()>0){
+				if (mibosList.size() > 0) {
 					miBoAdapter.clear();
 					miBoAdapter.addAll(mibosList);
 					curPage = 1;
 					successString = "查找了" + mibosList.size() + "条新秘博";
-				}else{
+				} else {
 					successString = "沒有数据了";
 				}
 				Message message = mHandler.obtainMessage(
 						ChannelCodes.MIBO_Find_SUCCESS, successString);
 				mHandler.sendMessage(message);
-				
+
 			}
 
 			@Override
@@ -433,26 +502,26 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		});
 	}
 
-	private void startloadAllOldMibo(){
+	private void startloadAllOldMibo() {
 		tagList.clear();
 		loadOldMibo();
 	}
-	
+
 	private void loadOldMibo() {
-		miboMgr.findTagRelatedMibo(tagList,curPage, new FindMiboListener() {
+		miboMgr.findTagRelatedMibo(tagList, curPage, new FindMiboListener() {
 
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
 				// TODO Auto-generated method stub
 				String successString;
-				if(mibosList.size()>0){
+				if (mibosList.size() > 0) {
 					miBoAdapter.addAll(mibosList);
 					curPage++;
 					successString = "加载了" + mibosList.size() + "条秘博";
-				}else{
+				} else {
 					successString = "没有更多数据了";
 				}
-				
+
 				Message message = mHandler.obtainMessage(
 						ChannelCodes.MIBO_Find_SUCCESS, successString);
 				mHandler.sendMessage(message);
@@ -473,10 +542,9 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	@Override
 	public void onLoadMore() {
 		// TODO Auto-generated method stub
-		if(tagList == null || tagList.isEmpty()){
+		if (tagList == null || tagList.isEmpty()) {
 			startloadAllOldMibo();
-		}
-		else{
+		} else {
 			loadOldMibo();
 		}
 	}
