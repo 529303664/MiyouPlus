@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cn.bmob.im.BmobUserManager;
 import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobObject;
 import cn.bmob.v3.BmobQuery;
@@ -336,6 +337,7 @@ public class MiboMgr {
 	}
 
 	
+	BmobGeoPoint lastlocation = null;
 	/** 复合查询标签 
 	 * @param tags 标签数
 	 * @param page 页数
@@ -349,11 +351,15 @@ public class MiboMgr {
 			query.addWhereContainedIn("tag", tags);
 		}
 		if(isNearby){
-			query.addWhereNear(
+			/*query.addWhereNear(
 					"location",
 					new BmobGeoPoint(Double.valueOf(CustomApplcation.getInstance()
 							.getLongtitude()), Double.valueOf(CustomApplcation
-							.getInstance().getLatitude())));
+							.getInstance().getLatitude())));*/
+			lastlocation = BmobUserManager.getInstance(context).getCurrentUser(User.class).getLocation();
+			query.addWhereNear(
+					"location",
+					new BmobGeoPoint(lastlocation.getLongitude(), lastlocation.getLatitude()));
 		}
 		query.setLimit(limit);
 		query.setSkip(page * limit);

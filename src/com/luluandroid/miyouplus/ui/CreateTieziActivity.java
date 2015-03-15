@@ -152,7 +152,6 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	private void initLocClient(){
 		LocationClientOption option = new LocationClientOption();
 		option.setLocationMode(LocationMode.Battery_Saving);
-		option.setProdName("bmobim");// 设置产品线
 		option.setOpenGps(false);// 打开gps
 		option.setCoorType("bd09ll"); // 设置坐标类型
 		option.setScanSpan(1000);

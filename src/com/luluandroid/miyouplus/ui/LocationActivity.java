@@ -138,7 +138,6 @@ public class LocationActivity extends BaseActivity implements
 		mLocClient = new LocationClient(this);
 		mLocClient.registerLocationListener(myListener);
 		LocationClientOption option = new LocationClientOption();
-		option.setProdName("bmobim");// 设置产品线
 		option.setOpenGps(true);// 打开gps
 		option.setCoorType("bd09ll"); // 设置坐标类型
 		option.setScanSpan(1000);
