@@ -1,18 +1,33 @@
 package com.luluandroid.miyouplus.ui;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import cn.bmob.im.BmobChatManager;
 import cn.bmob.im.BmobNotifyManager;
 import cn.bmob.im.bean.BmobInvitation;
@@ -20,10 +35,13 @@ import cn.bmob.im.bean.BmobMsg;
 import cn.bmob.im.config.BmobConfig;
 import cn.bmob.im.db.BmobDB;
 import cn.bmob.im.inteface.EventListener;
-
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.bean.DBMgr;
+import com.luluandroid.miyouplus.bean.Mibos;
+import com.luluandroid.miyouplus.config.BmobConstants;
 import com.luluandroid.miyouplus.config.BroadcastString;
+import com.luluandroid.miyouplus.control.MiboMgr;
+import com.luluandroid.miyouplus.control.MiboMgr.UpdateZanListener;
 import com.luluandroid.miyouplus.main.CustomApplcation;
 import com.luluandroid.miyouplus.main.MyMessageReceiver;
 import com.luluandroid.miyouplus.ui.fragment.ContactFragment;
@@ -44,6 +62,8 @@ public class MainActivity extends ActivityBase implements EventListener{
 
 	public Boolean isWritedPwd;
 	private LinearLayout main_bottom;
+	private RelativeLayout mainLayout,layout_report;
+	
 	private Button[] mTabs;
 	
 	private SharePreferenceUtil mShareUtil;
@@ -90,6 +110,7 @@ public class MainActivity extends ActivityBase implements EventListener{
 	
 	
 	private void initView(){
+		mainLayout = (RelativeLayout)findViewById(R.id.mainLayout);
 		main_bottom = (LinearLayout)findViewById(R.id.main_bottom);
 		mTabs = new Button[4];
 		mTabs[0] = (Button) findViewById(R.id.btn_message);
@@ -116,8 +137,6 @@ public class MainActivity extends ActivityBase implements EventListener{
 		getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, recentFragment).
 			add(R.id.fragment_container, contactFragment).hide(contactFragment).show(recentFragment).commit();
 	}
-	
-	
 	
 	/**
 	 * button点击事件
@@ -151,6 +170,45 @@ public class MainActivity extends ActivityBase implements EventListener{
 		mTabs[index].setSelected(true);
 		currentTabIndex = index;
 	}
+	MiboMgr miboMgr;
+	Mibos reportMibo;
+	PopupWindow sharePop;
+	public void showSharePop(final MiboMgr miboMgr,final Mibos reportMibo){
+		this.miboMgr = miboMgr;
+		this.reportMibo = reportMibo;
+		View view = LayoutInflater.from(this).inflate(R.layout.pop_showsharemenu,
+				null);
+		layout_report = (RelativeLayout) view.findViewById(R.id.layout_report);
+		layout_report.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				sendReport(miboMgr,reportMibo);
+			}
+		});
+		sharePop = new PopupWindow(view, mScreenWidth, 600);
+		sharePop.setTouchInterceptor(new OnTouchListener() {
+			@SuppressLint("ClickableViewAccessibility")
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_OUTSIDE) {
+					sharePop.dismiss();
+					return true;
+				}
+				return false;
+			}
+		});
+
+		sharePop.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
+		sharePop.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+		sharePop.setTouchable(true);
+		sharePop.setFocusable(true);
+		sharePop.setOutsideTouchable(true);
+		sharePop.setBackgroundDrawable(new BitmapDrawable());
+		// 动画效果 从底部弹起
+		sharePop.setAnimationStyle(R.style.Animations_GrowFromBottom);
+		sharePop.showAtLocation(mainLayout, Gravity.BOTTOM, 0, 0);
+	}
 	
 	public Boolean isWritedPwd() {
 		if(isWritedPwd == null ){
@@ -169,6 +227,25 @@ public class MainActivity extends ActivityBase implements EventListener{
 		}else{
 			iv_miquan_tips.setVisibility(View.INVISIBLE);
 		}
+	}
+	
+	public void sendReport(MiboMgr miboMgr,Mibos mibo){
+		miboMgr.UpdateReportCount(mibo, 1, new UpdateZanListener() {
+			
+			@Override
+			public void onSucess() {
+				// TODO Auto-generated method stub
+				sharePop.dismiss();
+				ShowToast("举报成功!!");
+			}
+			
+			@Override
+			public void onFailure(int code, String error) {
+				// TODO Auto-generated method stub
+				sharePop.dismiss();
+				ShowToast("举报失败!!:\n"+"code:"+code+" error:"+error);
+			}
+		});
 	}
 	
 	public Fragment getFragment(int position){

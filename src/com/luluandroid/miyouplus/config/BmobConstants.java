@@ -41,4 +41,5 @@ public class BmobConstants {
 	public static final int CROP_PIC_HEIGHT=360;
 	public static final String ACTION_REGISTER_SUCCESS_FINISH ="register.success.finish";//注册成功之后登陆页面退出
 	
+	
 }

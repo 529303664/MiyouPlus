@@ -194,6 +194,7 @@
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" android:label="@string/mymibocomment" android:screenOrientation="portrait">
         </activity>
         <activity android:name=".ui.MiboDetailActivity" android:windowSoftInputMode="adjustPan" android:screenOrientation="portrait"></activity>
+        <activity android:name=".ui.FeedbackActivity" android:windowSoftInputMode="adjustPan"></activity>
     </application>
 
 </manifest>

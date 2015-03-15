@@ -492,9 +492,8 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	}
 
 	private Mibos saveMibo() {
-		Mibos mibo = new Mibos(BmobUser.getCurrentUser(this).getUsername(),
+		Mibos mibo = new Mibos(
 				myMessageEditext.getText().toString(), Integer.valueOf("0"),((User) userManager.getCurrentUser(User.class)).getObjectId(),myTagEditText.getText().toString().trim());
-		mibo.setMyUser((User) userManager.getCurrentUser(User.class));
 		mibo.setOpentoAll(contactCheckBox.isChecked());
 		mibo.setCommentOk(CommentCheckBox.isChecked());
 		return mibo;

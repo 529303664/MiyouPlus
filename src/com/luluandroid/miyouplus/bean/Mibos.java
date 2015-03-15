@@ -13,12 +13,11 @@ public class Mibos extends BmobObject implements Serializable {
 	 * 秘博类的SerializableID 必须的
 	 */
 	private static final long serialVersionUID = 1400147433532249266L;
-	private User myUser;//关联的秘博用户
-	private String headUserName;//*用户名
 	private String content;//*秘博的内容
 	private Integer favorCount;//*秘博的赞数
 	private String fromUserId;//*发送秘博的用户ObjectId
 	private Integer CommentCount;//*秘博的评论数
+	private Integer reportCount;//*秘博的举报数 
 	private String tag;//*标签
 	private boolean isOpentoAll;//判断秘博是否对可以聊天
 	private boolean isCommentOk;//判断秘博是否可以评论
@@ -36,14 +35,14 @@ public class Mibos extends BmobObject implements Serializable {
 	}
 
 	// 默认的用的构造
-	public Mibos(String headUserName,String content, Integer favorCount,String fromUserId,String tag) {
+	public Mibos(String content, Integer favorCount,String fromUserId,String tag) {
 		super();
-		this.headUserName = headUserName;
 		this.content = content;
 		this.favorCount = favorCount;
 		this.fromUserId = fromUserId;
 		this.tag = tag;
 		this.CommentCount = 0;
+		this.reportCount = 0;
 		this.isOpentoAll = true;
 		this.isCommentOk = true;
 		this.pic = null;
@@ -51,14 +50,6 @@ public class Mibos extends BmobObject implements Serializable {
 		this.zanMan = new ArrayList<String>();
 		this.PicResourceId = 1;
 		//设置bmob服务器上的表格名称
-	}
-	
-	public User getMyUser() {
-		return myUser;
-	}
-
-	public void setMyUser(User myUser) {
-		this.myUser = myUser;
 	}
 
 	public String getFromUserId() {
@@ -122,6 +113,14 @@ public class Mibos extends BmobObject implements Serializable {
 		this.favorCount = zanCount;
 	}
 
+	public Integer getReportCount() {
+		return reportCount;
+	}
+
+	public void setReportCount(Integer reportCount) {
+		this.reportCount = reportCount;
+	}
+
 	/**
 	 * @return the isOpentoAll
 	 */
@@ -165,20 +164,6 @@ public class Mibos extends BmobObject implements Serializable {
 	 */
 	public void setPic(BmobFile pic) {
 		this.pic = pic;
-	}
-
-	/**
-	 * @return the headUserName
-	 */
-	public String getHeadUserName() {
-		return headUserName;
-	}
-
-	/**
-	 * @param headUserName the headUserName to set
-	 */
-	public void setHeadUserName(String headUserName) {
-		this.headUserName = headUserName;
 	}
 
 	public int getPicResourceId() {

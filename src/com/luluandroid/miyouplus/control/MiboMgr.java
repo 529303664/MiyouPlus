@@ -21,6 +21,7 @@ import cn.bmob.v3.listener.UpdateListener;
 import com.luluandroid.miyouplus.bean.MiboComment;
 import com.luluandroid.miyouplus.bean.Mibos;
 import com.luluandroid.miyouplus.bean.User;
+import com.luluandroid.miyouplus.config.Conf;
 import com.luluandroid.miyouplus.extra.ShowToast;
 import com.luluandroid.miyouplus.util.TimeUtil;
 
@@ -127,6 +128,28 @@ public class MiboMgr {
 			public void onFailure(int arg0, String arg1) {
 				// TODO Auto-generated method stub
 				deleteMiboListener.onFailure(arg0, arg1);
+			}
+		});
+	}
+	
+	public void UpdateReportCount(Mibos mibo,int count,final UpdateZanListener updateZanListener){
+		if(TextUtils.isEmpty(mibo.getObjectId())){
+			ShowToast.showShortToast(context, "当前秘博为空,不能更改赞数或评论数!");
+			return;
+		}
+		mibo.increment("reportCount", count);
+		mibo.update(context, new UpdateListener() {
+			
+			@Override
+			public void onSuccess() {
+				// TODO Auto-generated method stub
+				updateZanListener.onSucess();
+			}
+			
+			@Override
+			public void onFailure(int arg0, String arg1) {
+				// TODO Auto-generated method stub
+				updateZanListener.onFailure(arg0, arg1);
 			}
 		});
 	}
@@ -308,6 +331,7 @@ public class MiboMgr {
 		query.setLimit(limit);
 		query.setSkip(page*limit);
 		query.order("-createdAt");
+		query.addWhereLessThan("reportCount", Conf.limitReportCount);
 		query.setCachePolicy(CachePolicy.IGNORE_CACHE);
 		query.findObjects(context, new FindListener<Mibos>() {
 
@@ -338,6 +362,7 @@ public class MiboMgr {
 		query.setLimit(limit);
 		query.setSkip(page*limit);
 		query.order("-createdAt");
+		query.addWhereLessThan("reportCount", 1);
 		query.setCachePolicy(CachePolicy.IGNORE_CACHE);
 		query.findObjects(context, new FindListener<Mibos>() {
 
@@ -485,8 +510,7 @@ public class MiboMgr {
 			@Override
 			public void onSuccess(MiboComment arg0) {
 				// TODO Auto-generated method stub
-				ShowToast.showShortToast(context, "评论："+arg0.getContent()+"\n"
-						+"秘博用户名："+arg0.getMiboParent().getHeadUserName());
+				ShowToast.showShortToast(context, "评论："+arg0.getContent()+"\n");
 			}
 			
 			@Override

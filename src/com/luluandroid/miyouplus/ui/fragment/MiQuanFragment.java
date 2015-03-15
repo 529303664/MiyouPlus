@@ -38,6 +38,7 @@ import com.luluandroid.miyouplus.config.BroadcastString;
 import com.luluandroid.miyouplus.config.ChannelCodes;
 import com.luluandroid.miyouplus.control.MiboMgr;
 import com.luluandroid.miyouplus.control.MiboMgr.FindMiboListener;
+import com.luluandroid.miyouplus.control.MiboMgr.UpdateZanListener;
 import com.luluandroid.miyouplus.extra.ShowToast;
 import com.luluandroid.miyouplus.interfaces.SearchAfterTouchListener;
 import com.luluandroid.miyouplus.ui.CreateTieziActivity;
@@ -218,6 +219,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 								.toString().replaceAll("(\\s\\s)+", " ")
 								.split(" ")));
 						mySearchEditText.setText("");
+						hideSoftInputView();
 						showOrHideMySearchView();
 						loadLatestMibo();
 					}
@@ -480,7 +482,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 					miBoAdapter.clear();
 					miBoAdapter.addAll(mibosList);
 					curPage = 1;
-					successString = "查找了" + mibosList.size() + "条新秘博";
+					successString = "已屏蔽非法信息\n"+"查找了" + mibosList.size() + "条新秘博";
 				} else {
 					successString = "沒有数据了";
 				}

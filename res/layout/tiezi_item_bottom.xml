@@ -44,5 +44,12 @@
         android:drawableLeft="@drawable/ic_action_edit"
         android:gravity="fill_vertical"
         android:text="加载中" />
+    
+    <Button 
+        android:id="@+id/tiezi_bottom_mi_share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_action_share"
+        />
 
 </LinearLayout>

@@ -124,7 +124,6 @@ public class DBMgr {
 		for(Mibos mibo : miboList){
 			try {
 				cv.put(TieZiSchema.COLUMN_BMOB_ID, mibo.getObjectId());
-				cv.put(TieZiSchema.COLUMN_USER, mibo.getHeadUserName());
 				cv.put(TieZiSchema.COLUMN_CONTENT, mibo.getContent());
 				cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount());
 				cv.put(TieZiSchema.COLUMN_COMCOUNT, mibo.getCommentCount());
@@ -165,7 +164,6 @@ public class DBMgr {
 			for(Mibos mibo : miboList){
 				try {
 					cv.put(TieZiSchema.COLUMN_BMOB_ID, mibo.getObjectId());
-					cv.put(TieZiSchema.COLUMN_USER, mibo.getHeadUserName());
 					cv.put(TieZiSchema.COLUMN_USER_ID, mibo.getFromUserId());
 					cv.put(TieZiSchema.COLUMN_CONTENT, mibo.getContent());
 					cv.put(TieZiSchema.COLUMN_FAVOR, mibo.getFavorCount());

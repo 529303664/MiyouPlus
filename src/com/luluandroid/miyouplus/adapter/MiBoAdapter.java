@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import cn.bmob.im.BmobUserManager;
+import cn.bmob.im.bean.BmobChatUser;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.UpdateListener;
@@ -228,6 +229,7 @@ public class MiBoAdapter extends BaseAdapter {
 			viewHolder.mImageView = (ImageView)convertView.findViewById(R.id.tiezi_head_imageview);
 			viewHolder.headUserName = (TextView)convertView.findViewById(R.id.tiezi_head_username);
 			viewHolder.tagButton = (Button)convertView.findViewById(R.id.tiezi_head_tag);
+			viewHolder.shareButton = (Button)convertView.findViewById(R.id.tiezi_bottom_mi_share);
 			viewHolder.tiezi_time = (TextView)convertView.findViewById(R.id.tiezi_head_time);
 			viewHolder.bgImageView = (ImageView)convertView.findViewById(R.id.tiezi_imageview1);
 			viewHolder.ConTextView = (EmojiconTextView)convertView.findViewById(R.id.tiezi_content);
@@ -324,6 +326,15 @@ public class MiBoAdapter extends BaseAdapter {
 				// TODO Auto-generated method stub
 				Message msg = mHandler.obtainMessage(ChannelCodes.UPDATEVIEW_MIBO_TAG, position, 0);
 				mHandler.sendMessage(msg);
+			}
+		});
+		
+		viewHolder.shareButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				clickShare(position);
 			}
 		});
 		
@@ -424,6 +435,10 @@ public class MiBoAdapter extends BaseAdapter {
 		}
 	}
 	
+	private void clickShare(int position){
+		((MainActivity)context).showSharePop(miboMgr,mMibos.get(position));
+	}
+	
 	private void clickImage(int position){
 		Message msg = mHandler.obtainMessage(ChannelCodes.UPDATEVIEW_Content_Text_Color, position, 0);
 		mHandler.sendMessage(msg);
@@ -439,11 +454,12 @@ public class MiBoAdapter extends BaseAdapter {
 	}
 	
 	private void ClickContact(int position){
-		if(mMibos.get(position).getHeadUserName().equals(userManager.getCurrentUserName())){
+		if(mMibos.get(position).getFromUserId().equals(userManager.getCurrentUserObjectId())){
 			ShowToast.showShortToast(context, "不能和自己聊天");
 			return;
 		}
-		userManager.queryUser(mMibos.get(position).getHeadUserName(), new FindListener<User>() {
+		
+		userManager.queryUserById(mMibos.get(position).getObjectId(), new FindListener<BmobChatUser>() {
 
 			@Override
 			public void onError(int arg0, String arg1) {
@@ -452,10 +468,10 @@ public class MiBoAdapter extends BaseAdapter {
 			}
 
 			@Override
-			public void onSuccess(List<User> arg0) {
+			public void onSuccess(List<BmobChatUser> arg0) {
 				// TODO Auto-generated method stub
 				if (arg0 != null && arg0.size() > 0) {
-					user = arg0.get(0);
+					user = (User) arg0.get(0);
 					startContact(user);
 				} else {
 					ShowToast.showShortToast(context,"聊天：查找秘友 onSuccess但查无此人");
@@ -565,7 +581,7 @@ public class MiBoAdapter extends BaseAdapter {
 		public EmojiconTextView ConTextView;
 		public TextView favor,mi_contact,mi_comment;
 		public ImageView[] imageHead = new ImageView[9];
-		public Button tagButton;
+		public Button tagButton,shareButton;
 	}
 	
 }

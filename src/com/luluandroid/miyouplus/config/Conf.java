@@ -18,7 +18,6 @@ public class Conf {
 	//sdk版本
 	public static final int APILevel = Integer.parseInt(VERSION.SDK);
 	
-	
 	//图片处理的一些参数
 	public final static int TAKE_PICTURE = 0x100;
 	public final static int CHOOSE_PICTURE = 0x101;
@@ -27,5 +26,7 @@ public class Conf {
 	
 	//handler 处理的一些参数
 	public final static int HANDLER_CREATE_TIEZI_CB = 0x201;
+	
+	public final static int limitReportCount = 10;
 	
 }

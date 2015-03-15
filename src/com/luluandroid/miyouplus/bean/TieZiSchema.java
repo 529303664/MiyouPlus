@@ -15,7 +15,6 @@ public  class TieZiSchema implements  BaseColumns,TableCreateInterface{
 	private   String COMMA_SEP = ",";
 	public static final String TABLE_NAME="mibo";
 	public static final String COLUMN_BMOB_ID = "bmobid";
-	public static final String COLUMN_USER="user";
 	public static final String COLUMN_USER_ID="userid";
 	public static final String COLUMN_CONTENT="content";
 	public static final String COLUMN_TAG="tag";
@@ -42,7 +41,6 @@ public  class TieZiSchema implements  BaseColumns,TableCreateInterface{
 				+ TieZiSchema._ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ TieZiSchema.COLUMN_BMOB_ID + TEXT_TYPE + COMMA_SEP
-				+ TieZiSchema.COLUMN_USER + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_USER_ID + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_CONTENT + TEXT_TYPE + COMMA_SEP
 				+ TieZiSchema.COLUMN_TAG + TEXT_TYPE + COMMA_SEP

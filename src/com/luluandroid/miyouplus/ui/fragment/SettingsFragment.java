@@ -1,6 +1,7 @@
 package com.luluandroid.miyouplus.ui.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -8,7 +9,9 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +24,7 @@ import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.main.CustomApplcation;
 import com.luluandroid.miyouplus.ui.BlackListActivity;
 import com.luluandroid.miyouplus.ui.EditMyMiboActivity;
+import com.luluandroid.miyouplus.ui.FeedbackActivity;
 import com.luluandroid.miyouplus.ui.FragmentBase;
 import com.luluandroid.miyouplus.ui.LoginActivity;
 import com.luluandroid.miyouplus.ui.SetMyInfoActivity;
@@ -41,7 +45,7 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 	Button btn_logout,miyou_password_button,clear_miyou_password_button;
 	TextView tv_set_name,miyou_password_textView;
 	RelativeLayout layout_info,layout_clear_miyou_password, rl_switch_miyou_password,rl_set_miyoupassword,rl_switch_notification, rl_switch_voice,
-	rl_switch_vibrate,layout_blacklist,layout_mymibo,layout_mycomment;
+	rl_switch_vibrate,layout_blacklist,layout_mymibo,layout_mycomment,layout_myfeedback;
 
 	ImageView iv_open_miyou_password,iv_close_miyou_password,iv_open_notification, iv_close_notification, iv_open_voice,
 			iv_close_voice, iv_open_vibrate, iv_close_vibrate;
@@ -84,6 +88,7 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 		rl_switch_vibrate = (RelativeLayout) findViewById(R.id.rl_switch_vibrate);
 		layout_mymibo = (RelativeLayout) findViewById(R.id.layout_mymibo);
 		layout_mycomment = (RelativeLayout) findViewById(R.id.layout_mycomment);
+		layout_myfeedback = (RelativeLayout) findViewById(R.id.layout_myfeedback);
 		layout_clear_miyou_password = (RelativeLayout) findViewById(R.id.layout_clear_miyou_password);
 		layout_clear_miyou_password.setOnClickListener(this);
 		rl_switch_miyou_password.setOnClickListener(this);
@@ -92,6 +97,7 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 		rl_switch_vibrate.setOnClickListener(this);
 		layout_mymibo.setOnClickListener(this);
 		layout_mycomment.setOnClickListener(this);
+		layout_myfeedback.setOnClickListener(this);
 
 		clear_miyou_password_editText = (EditText)findViewById(R.id.clear_miyou_password_editText);
 		miyou_password_editText = (EditText)findViewById(R.id.miyou_password_editText);
@@ -250,8 +256,13 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 			intent.putExtras(bundle);
 			startActivity(intent);
 			break;
+		case R.id.layout_myfeedback:
+			intent = new Intent(getActivity(),FeedbackActivity.class);
+			startActivity(intent);
+			break;
 		case R.id.layout_clear_miyou_password:
 			actToClearPwd();
+			hideSoftInputView();
 			break;
 		case R.id.clear_miyou_password_button:
 			writeToClearPwd();
@@ -305,6 +316,8 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 			break;
 		case R.id.miyou_password_button:
 			writeToPassword();
+			hideSoftInputView();
+			break;
 			default:
 				break;
 		}
@@ -352,6 +365,10 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 	}
 	
 	private void writeToPassword(){
+		if(TextUtils.isEmpty(miyou_password_editText.getText().toString().trim())){
+			ShowToast("ÃÜÂë²»ÄÜÎª¿Õ");
+			return;
+		}
 		if(isEmptyMiyouPassword()){
 			mSharedUtil.setMiYouPassword(miyou_password_editText.getText().toString().trim());
 			ShowToast(miyou_password_editText.getText().toString().trim());
@@ -384,6 +401,14 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 		clear_miyou_password_editText.setText("");
 		clear_miyou_password_button.setVisibility(View.INVISIBLE);
 		clear_miyou_password_editText.setVisibility(View.INVISIBLE);
+	}
+	
+	public void hideSoftInputView() {
+		InputMethodManager manager = ((InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE));
+		if (getActivity().getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+			if (getActivity().getCurrentFocus() != null)
+				manager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+		}
 	}
 
 }
