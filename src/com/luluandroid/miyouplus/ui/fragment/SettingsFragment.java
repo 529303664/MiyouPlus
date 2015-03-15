@@ -265,6 +265,7 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 			hideSoftInputView();
 			break;
 		case R.id.clear_miyou_password_button:
+			hideSoftInputView();
 			writeToClearPwd();
 			break;
 		case R.id.rl_switch_notification:
@@ -315,8 +316,8 @@ public class SettingsFragment extends FragmentBase implements OnClickListener{
 			view3.setVisibility(View.VISIBLE);
 			break;
 		case R.id.miyou_password_button:
-			writeToPassword();
 			hideSoftInputView();
+			writeToPassword();
 			break;
 			default:
 				break;
