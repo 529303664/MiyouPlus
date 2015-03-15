@@ -137,7 +137,7 @@ public class FragmentCreatetieziChangeBar extends Fragment {
 		tempBitmap2 = Bitmap.createBitmap(tempBitmap);
 		((ImageView) getActivity().findViewById(
 				R.id.create_tiezi_imageview1)).setDrawingCacheEnabled(false);
-		System.out.println("initview tempBitmap:"+tempBitmap+" tempBitmap2:"+tempBitmap2);
+//		System.out.println("initview tempBitmap:"+tempBitmap+" tempBitmap2:"+tempBitmap2);
 		brightnessText.setOnClickListener(new OnClickListener() {
 
 			@Override

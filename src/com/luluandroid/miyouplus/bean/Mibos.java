@@ -3,8 +3,10 @@ package com.luluandroid.miyouplus.bean;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import cn.bmob.v3.BmobObject;
 import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.datatype.BmobGeoPoint;
 import cn.bmob.v3.datatype.BmobRelation;
 
 public class Mibos extends BmobObject implements Serializable {
@@ -24,6 +26,7 @@ public class Mibos extends BmobObject implements Serializable {
 	private BmobFile pic;//秘博的网络图片对象
 	private String localPicName;//如果秘博有图片，则为该秘博的图片名称，否则为空
 	private BmobRelation Comments;
+	private BmobGeoPoint location;//秘博发帖的位置
 	private List<String> zanMan;//点赞的人的ObjectId
 	private int PicResourceId;//默认用户图片使用app的ID为l_2图片，与localPicName不共存，则该ID还是存在，否则为-1
 
@@ -49,6 +52,7 @@ public class Mibos extends BmobObject implements Serializable {
 		this.localPicName = null;
 		this.zanMan = new ArrayList<String>();
 		this.PicResourceId = 1;
+		location = null;
 		//设置bmob服务器上的表格名称
 	}
 
@@ -223,6 +227,13 @@ public class Mibos extends BmobObject implements Serializable {
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
-	
+
+	public BmobGeoPoint getLocation() {
+		return location;
+	}
+
+	public void setLocation(BmobGeoPoint location) {
+		this.location = location;
+	}
 	
 }

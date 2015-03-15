@@ -3,7 +3,7 @@ package com.luluandroid.miyouplus.ui.fragment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,7 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.bmob.im.BmobUserManager;
-
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.adapter.MiBoAdapter;
 import com.luluandroid.miyouplus.bean.Mibos;
@@ -97,15 +96,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		}
 	}
 
-	/**
-	 * 隐藏软键盘 hideSoftInputView
-	 * 
-	 * @Title: hideSoftInputView
-	 * @Description: TODO
-	 * @param
-	 * @return void
-	 * @throws
-	 */
+
 	public void hideSoftInputView() {
 		InputMethodManager manager = ((InputMethodManager) getActivity()
 				.getSystemService(Activity.INPUT_METHOD_SERVICE));
@@ -138,6 +129,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	}
 
 	// 创建handler 用于控制UI
+	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
 
 		@Override
@@ -173,7 +165,6 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		initPopMenu();
 		initTopBarForOnlyTitle("秘圈");
 		title = mHeaderLayout.getmHtvSubTitle();
-		System.out.println("title 是:" + title);
 		title.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -221,7 +212,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 						mySearchEditText.setText("");
 						hideSoftInputView();
 						showOrHideMySearchView();
-						loadLatestMibo();
+						loadLatestMibo(isNearbyOk);
 					}
 				});
 	}
@@ -244,7 +235,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 				// TODO Auto-generated method stub
 				tagList.clear();
 				tagList.add(miquan_recovery_btn1.getText().toString().substring(1).trim());
-				loadLatestMibo();
+				loadLatestMibo(isNearbyOk);
 				showOrHideMySearchView();
 			}
 		});
@@ -255,7 +246,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 				// TODO Auto-generated method stub
 				tagList.clear();
 				tagList.add(miquan_recovery_btn2.getText().toString().substring(1).trim());
-				loadLatestMibo();
+				loadLatestMibo(isNearbyOk);
 				showOrHideMySearchView();
 			}
 		});
@@ -266,7 +257,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 				// TODO Auto-generated method stub
 				tagList.clear();
 				tagList.add(miquan_recovery_btn3.getText().toString().substring(1).trim());
-				loadLatestMibo();
+				loadLatestMibo(isNearbyOk);
 				showOrHideMySearchView();
 			}
 		});
@@ -277,7 +268,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 				// TODO Auto-generated method stub
 				tagList.clear();
 				tagList.add(miquan_recovery_btn4.getText().toString().substring(1).trim());
-				loadLatestMibo();
+				loadLatestMibo(isNearbyOk);
 				showOrHideMySearchView();
 			}
 		});
@@ -297,7 +288,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 
 	private void initPopMenu() {
 		popMenu = new PopMenu(getActivity());
-		popMenu.addItems(new String[] { "发帖", "发现", "我的秘博", "我的评论" });
+		popMenu.addItems(new String[] { "发帖", "发现","同城模式 ","我的秘博", "我的评论" });
 		popMenu.setOnItemClickListener(new com.luluandroid.miyouplus.ui.PopMenu.OnItemClickListener() {
 
 			@Override
@@ -311,22 +302,30 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 					showOrHideMySearchView();
 					break;
 				case 2:
-					linkToMyMiboOrComment(true);
+					startNearbyMode();
 					break;
 				case 3:
+					linkToMyMiboOrComment(true);
+					break;
+				case 4:
 					linkToMyMiboOrComment(false);
 					break;
 				default:
 					break;
 				}
-				/*
-				 * Toast.makeText(getActivity(), "点击第" + index + "个popmenuitem",
-				 * Toast.LENGTH_SHORT).show();
-				 */
 			}
 		});
 	}
 
+	private void startNearbyMode(){
+		isNearbyOk = !isNearbyOk;
+		if(isNearbyOk){
+			ShowToast("启动同城模式");
+		}else{
+			ShowToast("关闭同城模式");
+		}
+	}
+	
 	// 初始化操作查询秘博
 	private void getItems() {
 
@@ -347,7 +346,7 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 			@Override
 			public void onFailure(int code, String error) {
 				// TODO Auto-generated method stub
-				String successString = "查找了最新秘博失败:" + "code:" + code + "error:"
+				String successString = "查找了最新秘博失败:" + "code:" + code + " error:"
 						+ error;
 				Message message = mHandler.obtainMessage(
 						ChannelCodes.MIBO_Find_SUCCESS, successString);
@@ -464,15 +463,16 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 		// 测试
 		startloadAllLatestMibo();
 	}
-
+	
 	private void startloadAllLatestMibo() {
 		tagList.clear();
-		loadLatestMibo();
+		loadLatestMibo(isNearbyOk);
 	}
-
-	private void loadLatestMibo() {
+//	默认关闭同城模式
+	boolean isNearbyOk = false;
+	private void loadLatestMibo(boolean isNearby) {
 		curPage = 0;
-		miboMgr.findTagRelatedMibo(tagList, curPage, new FindMiboListener() {
+		miboMgr.findTagRelatedMibo(tagList, curPage,isNearby, new FindMiboListener() {
 
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
@@ -495,10 +495,10 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 			@Override
 			public void onFailure(int code, String error) {
 				// TODO Auto-generated method stub
-				String successString = "查找了最新秘博失败:" + "code:" + code + "error:"
+				String successString = "查找了最新秘博失败:" + "code:" + code + " error:"
 						+ error;
 				Message message = mHandler.obtainMessage(
-						ChannelCodes.MIBO_Find_SUCCESS, successString);
+						ChannelCodes.MIBO_Find_FAILURE, successString);
 				mHandler.sendMessage(message);
 			}
 		});
@@ -506,11 +506,11 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 
 	private void startloadAllOldMibo() {
 		tagList.clear();
-		loadOldMibo();
+		loadOldMibo(isNearbyOk);
 	}
-
-	private void loadOldMibo() {
-		miboMgr.findTagRelatedMibo(tagList, curPage, new FindMiboListener() {
+	
+	private void loadOldMibo(boolean isNearby) {
+		miboMgr.findTagRelatedMibo(tagList, curPage,isNearby, new FindMiboListener() {
 
 			@Override
 			public void onSuccess(List<Mibos> mibosList) {
@@ -532,10 +532,10 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 			@Override
 			public void onFailure(int code, String error) {
 				// TODO Auto-generated method stub
-				String successString = "查找了最新秘博失败:" + "code:" + code + "error:"
+				String successString = "查找了最新秘博失败:" + "code:" + code + " error:"
 						+ error;
 				Message message = mHandler.obtainMessage(
-						ChannelCodes.MIBO_Find_SUCCESS, successString);
+						ChannelCodes.MIBO_Find_FAILURE, successString);
 				mHandler.sendMessage(message);
 			}
 		});
@@ -544,11 +544,11 @@ public class MiQuanFragment extends FragmentBase implements IXListViewListener {
 	@Override
 	public void onLoadMore() {
 		// TODO Auto-generated method stub
-		if (tagList == null || tagList.isEmpty()) {
-			startloadAllOldMibo();
-		} else {
-			loadOldMibo();
-		}
+			if (tagList == null || tagList.isEmpty()) {
+				startloadAllOldMibo();
+				return;
+			}
+			loadOldMibo(isNearbyOk);
 	}
 
 }

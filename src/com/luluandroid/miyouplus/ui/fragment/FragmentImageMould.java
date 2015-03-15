@@ -61,9 +61,6 @@ public class FragmentImageMould extends Fragment {
 	private void initView(){
 		returnTextView = (TextView)getActivity().findViewById(R.id.create_tiezi_mould_return);
 		mGridView = (MyGridView)getActivity().findViewById(R.id.create_tiezi_gridview);
-		if(mGridView==null){
-			System.out.println("mGridViewÎª¿Õ");
-		}
 		mGridView.setAdapter(new MouldAdapter(getActivity(),mThumbIds));
 		mGridView.requestFocus();
 		mGridView.smoothScrollToPosition(0);

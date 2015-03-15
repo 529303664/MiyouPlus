@@ -16,7 +16,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,13 +40,24 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import cn.bmob.im.BmobUserManager;
+import cn.bmob.im.util.BmobLog;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.datatype.BmobGeoPoint;
 import cn.bmob.v3.datatype.BmobRelation;
 import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 import cn.bmob.v3.listener.UploadFileListener;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.location.LocationClientOption.LocationMode;
+import com.baidu.mapapi.SDKInitializer;
+import com.baidu.mapapi.map.MapStatusUpdate;
+import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.model.LatLng;
 import com.luluandroid.miyouplus.R;
 import com.luluandroid.miyouplus.bean.DBMgr;
 import com.luluandroid.miyouplus.bean.Mibos;
@@ -52,6 +66,7 @@ import com.luluandroid.miyouplus.config.BmobConstants;
 import com.luluandroid.miyouplus.config.ChannelCodes;
 import com.luluandroid.miyouplus.extra.ShowToast;
 import com.luluandroid.miyouplus.main.CustomApplcation;
+import com.luluandroid.miyouplus.ui.LocationActivity.BaiduReceiver;
 import com.luluandroid.miyouplus.ui.fragment.FragmentCreatetieziChangeBar;
 import com.luluandroid.miyouplus.ui.fragment.FragmentCreatetieziNavigation;
 import com.luluandroid.miyouplus.ui.fragment.FragmentImageMould;
@@ -84,6 +99,11 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	private DialogProgress progressDialog;
 	private int currentResId = 1;//当前选定的图片资源ID
 	
+	private boolean isNetWork = true;
+	private BaiduReceiver mBaiduReceiver;// 注册广播接收器，用于监听网络以及验证key
+	public LocationClient mLocationClient = null;
+	public BDLocationListener myLocationListener = null;
+	
 	private BmobUserManager userManager;
 
 	@Override
@@ -103,8 +123,53 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		InitActionBar();
 		initComponent();
 		CustomApplcation.getInstance().addActivity(this);
+		/*initSDKReceiver();
+		initBaiduLBS();*/
 	}
 
+	private void initSDKReceiver(){
+		// 注册 SDK 广播监听者
+				IntentFilter iFilter = new IntentFilter();
+				iFilter.addAction(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_ERROR);
+				iFilter.addAction(SDKInitializer.SDK_BROADCAST_ACTION_STRING_NETWORK_ERROR);
+				mBaiduReceiver = new BaiduReceiver();
+				registerReceiver(mBaiduReceiver, iFilter);
+	}
+	
+	private void destroySDKReceiver(){
+		// 取消监听 SDK 广播
+		unregisterReceiver(mBaiduReceiver);
+	}
+	
+	private void initBaiduLBS(){
+		mLocationClient = new LocationClient(this);
+		myLocationListener = new MyLocationListener();
+		mLocationClient.registerLocationListener(myLocationListener);
+		initLocClient();
+	}
+	
+	static BDLocation lastLocation = null;
+	private void initLocClient(){
+		LocationClientOption option = new LocationClientOption();
+		option.setLocationMode(LocationMode.Battery_Saving);
+		option.setProdName("bmobim");// 设置产品线
+		option.setOpenGps(false);// 打开gps
+		option.setCoorType("bd09ll"); // 设置坐标类型
+		option.setScanSpan(1000);
+		option.setIsNeedAddress(false);
+		mLocationClient.setLocOption(option);
+		mLocationClient.start();
+		if (mLocationClient != null && mLocationClient.isStarted()){
+			if(isNetWork){
+				mLocationClient.requestLocation();
+			}else{
+				mLocationClient.requestOfflineLocation();
+			}
+		}
+		else
+			BmobLog.i("locClient is null or not started");
+	}
+	
 	/**
 	 * 
 	 */
@@ -214,6 +279,13 @@ public class CreateTieziActivity extends ActionBarActivity implements
 		 
 	}
 
+	public void destroyBaiduLBS(){
+		if(mLocationClient!=null && mLocationClient.isStarted()){
+			mLocationClient.unRegisterLocationListener(myLocationListener);
+			mLocationClient.stop();
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -222,6 +294,8 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
+		/*destroySDKReceiver();
+		destroyBaiduLBS();*/
 		recycleBitmap();
 		super.onDestroy();
 	}
@@ -496,6 +570,12 @@ public class CreateTieziActivity extends ActionBarActivity implements
 				myMessageEditext.getText().toString(), Integer.valueOf("0"),((User) userManager.getCurrentUser(User.class)).getObjectId(),myTagEditText.getText().toString().trim());
 		mibo.setOpentoAll(contactCheckBox.isChecked());
 		mibo.setCommentOk(CommentCheckBox.isChecked());
+		mibo.setLocation(new BmobGeoPoint(Double.valueOf(CustomApplcation.getInstance().getLongtitude()),Double.valueOf(CustomApplcation.getInstance().getLatitude())));
+		/*if(lastLocation != null){
+			mibo.setLocation(new BmobGeoPoint(lastLocation.getLongitude(), lastLocation.getLatitude()));
+		}else{
+			mibo.setLocation(new BmobGeoPoint(1,1));
+		}*/
 		return mibo;
 	}
 
@@ -698,6 +778,69 @@ public class CreateTieziActivity extends ActionBarActivity implements
 	 */
 	public void setCurrentResId(int currentResId) {
 		this.currentResId = currentResId;
+	}
+	
+	/**
+	 * 构造广播监听类，监听 SDK key 验证以及网络异常广播
+	 */
+	public class BaiduReceiver extends BroadcastReceiver {
+		public void onReceive(Context context, Intent intent) {
+			String s = intent.getAction();
+			if (s.equals(SDKInitializer.SDK_BROADTCAST_ACTION_STRING_PERMISSION_CHECK_ERROR)) {
+				ShowToast.showShortToast(CreateTieziActivity.this, "key 验证出错! 请在 AndroidManifest.xml 文件中检查 key 设置");
+			} else if (s
+					.equals(SDKInitializer.SDK_BROADCAST_ACTION_STRING_NETWORK_ERROR)) {
+				isNetWork = false;
+				ShowToast.showShortToast(CreateTieziActivity.this, "网络出错");
+			}
+		}
+	}
+	
+	public class MyLocationListener implements BDLocationListener {
+
+		@Override
+		public void onReceiveLocation(BDLocation location) {
+			// TODO Auto-generated method stub
+			if (location == null)
+	            return ;
+			
+			if(lastLocation != null){
+				if(lastLocation.getLatitude() == location.getLatitude()
+						&& lastLocation.getLongitude() == location
+						.getLongitude()){
+					BmobLog.i("获取坐标相同");
+					mLocationClient.stop();
+				}
+				return ;
+			}
+			lastLocation = location;
+			
+			BmobLog.i("lontitude = " + location.getLongitude() + ",latitude = "
+					+ location.getLatitude());
+		/*StringBuffer sb = new StringBuffer(256);
+		sb.append("time : ");
+		sb.append(location.getTime());
+		sb.append("\nerror code : ");
+		sb.append(location.getLocType());
+		sb.append("\nlatitude : ");
+		sb.append(location.getLatitude());
+		sb.append("\nlontitude : ");
+		sb.append(location.getLongitude());
+		sb.append("\nradius : ");
+		sb.append(location.getRadius());
+		if (location.getLocType() == BDLocation.TypeGpsLocation){
+			sb.append("\nspeed : ");
+			sb.append(location.getSpeed());
+			sb.append("\nsatellite : ");
+			sb.append(location.getSatelliteNumber());
+		} else if (location.getLocType() == BDLocation.TypeNetWorkLocation){
+			sb.append("\naddr : ");
+			sb.append(location.getAddrStr());
+		} 
+
+		Log.i("CreateTieziActivity", sb.toString());*/
+		}
+		
 	}
 
 }

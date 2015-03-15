@@ -273,10 +273,10 @@ public class MainActivity extends ActivityBase implements EventListener{
 		MyMessageReceiver.mNewNum=0;
 		
 		if(!isWritedPwd()&&mShareUtil.isAllowSelfPassword()){
-			System.out.println("切换fragment");
+//			System.out.println("切换fragment");
 			if(!miyouPwdFragment.isAdded()){
 				getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, miyouPwdFragment).commit();
-				System.out.println("fragment没导入");
+//				System.out.println("fragment没导入");
 			}
 			getSupportFragmentManager().beginTransaction().hide(fragments[currentTabIndex]).show(miyouPwdFragment).setCustomAnimations(R.anim.left_in,
 					R.anim.right_out).commit();

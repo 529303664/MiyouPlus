@@ -78,7 +78,7 @@ public class ImageManager {
 	    Paint paint = new Paint();
 	    paint.setFlags(Paint.FILTER_BITMAP_FLAG);
 	    paint.setAntiAlias(true);
-	    System.out.println("bkg:"+bkg);
+//	    System.out.println("bkg:"+bkg);
 	    canvas.drawBitmap(bkg, 0, 0, paint);
 	 
 	    overlay = FastBlur.doBlur(overlay, (int)radius, true);
